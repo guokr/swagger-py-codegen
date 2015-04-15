@@ -1,0 +1,1 @@
+recursive-include flask_swagger_codegen *

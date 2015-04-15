@@ -1,0 +1,8 @@
+*.py[co]
+build/
+dist/
+*.so
+*.sw[po]
+.DS_Store
+*.egg-info
+*.egg

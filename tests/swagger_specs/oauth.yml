@@ -1,0 +1,222 @@
+swagger: '2.0'
+info:
+  title: MOOC Student API
+  version: "1.0.0"
+host: api.student.guokr.com
+schemes:
+  - https
+basePath: /v1
+consumes:
+  - application/json
+produces:
+  - application/json
+definitions:
+  Authentication:
+    required:
+      - username
+      - password
+      - client_id
+      - client_secret
+    properties:
+      grant_type:
+        type: string
+        description: 认证类型. password / refresh_token
+        enum:
+          - password
+          - refresh_token
+      auth_approach:
+        type: string
+        description: 认证方式. weibo / weixin / email / phone
+        enum:
+          - weibo
+          - weixin
+          - email
+          - phone
+      username:
+        type: string
+        description: 微博uid / email .. 对应 approach
+      password:
+        type: string
+        description: 微博access_token / 密码 ..
+      client_id:
+        type: string
+        description: 客户端 id
+      client_secret:
+        type: string
+        description: 客户端密码
+  Token:
+    properties:
+      access_token:
+        type: string
+      token_type:
+        type: string
+        default: Bearer
+      expires_in:
+        type: integer
+        format: int32
+      scope:
+        type: array
+        items: 
+          type: string
+          enum:
+            - register
+            - open
+  Approach:
+    properties:
+      approach:
+        type: string
+      identity:
+        type: string
+  User:
+    properties:
+      nickname:
+        type: string
+      avatar:
+        type: string
+  Error:
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      fields_:
+        type: string
+parameters:
+  AccessToken:
+    name: access_token
+    in: header
+    required: true
+    type: string
+securityDefinitions:
+  OAuth2:
+    type: oauth2
+    flow: password
+    tokenUrl: https://api.student.guokr.com/oauth/token
+    scopes:
+      register: 用户注册
+      open: 开放 API
+paths:
+  /oauth/token:
+    post:
+      summary: 使用账号换取 token
+      description: |
+        账号可以包括微博、微信、Email、手机等多种方式.
+        如果使用没有注册过的微博或微信来获取token, 则返回token的 scope 为 ['register'], 以此表明需要先注册一个用户.
+      tags: [oauth]
+      operationId: oauth_create_token
+      parameters:
+        - name: authentication
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Authentication'
+      responses:
+        201:
+          description: access token
+          schema:
+            $ref: '#/definitions/Token'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /oauth/auth_approach:
+    get:
+      summary: 当前用户可用的认证方式
+      tags: [oauth]
+      parameters:
+        - $ref: '#/parameters/AccessToken'
+      responses:
+        200:
+          description: auth approach list
+          schema:
+            $ref: '#/definitions/Approach'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+      security: 
+        - OAuth2: [open]
+    post:
+      summary: 绑定新的认证方式
+      parameters:
+        - $ref: '#/parameters/AccessToken'
+        - name: approach
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Approach'
+      responses:
+        201:
+          description: 绑定成功
+      security: 
+        - OAuth2: [open]
+  /oauth/auth_approach/{approach}:
+    get:
+      summary: 当前用户可用的认证方式
+      parameters:
+        - $ref: '#/parameters/AccessToken'
+        - name: approach
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: auth approach list
+          schema:
+            $ref: '#/definitions/Approach'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+      security: 
+        - OAuth2: [open]
+    delete:
+      summary: 解除绑定
+      responses:
+        204:
+          description: 删除成功
+      parameters:
+        - name: access_token
+          in: header
+          required: true
+          type: string
+        - name: approach
+          in: path
+          required: true
+          type: string
+      tags:
+        - OAuth
+      security: 
+        - OAuth2: [open]
+  /users:
+    post:
+      summary: user register
+      description: 用户注册, 需使用有 register scope 的 access_token 才能注册用户.
+      responses:
+        201:
+          description: ok
+      parameters:
+        - $ref: '#/parameters/AccessToken'
+        - name: user
+          in: body
+          schema:
+            $ref: '#/definitions/User'
+      security: 
+        - OAuth2: [register]
+  /users/current:
+    get:
+      summary: get current user info
+      responses:
+        200:
+          schema:
+            $ref: '#/definitions/User'
+          description: user info
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+      parameters:
+        - $ref: '#/parameters/AccessToken'
+      security: 
+        - OAuth2: [open]

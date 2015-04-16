@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 
-{% include '_do_not_change.tpl' %}
+###
+### DO NOT CHANGE THIS FILE
+### 
+### The code is auto generated, your change will be overwritten by 
+### code generating.
+###
 
 from functools import wraps
 from werkzeug.datastructures import MultiDict
@@ -10,9 +15,10 @@ from flask_restful import abort
 from . import schemas
 
 validators = {
-{%- for key, validator in validators.iteritems() %}
-    {{ key }}: (schemas.{{ validator.schema }}, {{ validator.many }}),
-{%- endfor %}
+    ('history', 'GET', 'args'): (schemas.HistoryGETArgsSchema, False),
+    ('products', 'GET', 'args'): (schemas.ProductsGETArgsSchema, False),
+    ('estimates_price', 'GET', 'args'): (schemas.EstimatesPriceGETArgsSchema, False),
+    ('estimates_time', 'GET', 'args'): (schemas.EstimatesTimeGETArgsSchema, False),
 }
 
 

@@ -37,7 +37,7 @@ class SwaggerParser(object):
         paths = list(paths)
         if isinstance(node, dict):
             if '$ref' in node:
-                if paths[-1] == 'schema':
+                if paths[-1] in ('schema', 'items'):
                     self.swagger.set_by_keys(
                         paths, node['$ref'].split('/')[-1])
                 else:

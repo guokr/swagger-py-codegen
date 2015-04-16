@@ -5,7 +5,7 @@ import click
 from parser import parse_yaml
 import writer
 
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 
 
 @click.command()

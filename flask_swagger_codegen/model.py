@@ -77,7 +77,8 @@ class Schema(object):
     __str__ = __repr__
 
 
-ResponseFilter = namedtuple('ResponseFilter', ['code', 'schema'])
+ResponseFilter = namedtuple('ResponseFilter', ['code', 'schema', 'many'])
+Validator = namedtuple('Validator', ['schema', 'many'])
 
 
 class Method(object):
@@ -149,8 +150,8 @@ class SwaggerFlaskModel(object):
 
     def __init__(self):
         super(SwaggerFlaskModel, self).__init__()
-        # self.schemas = OrderedDict()
-        self.schemas = {}
+        self.schemas = OrderedDict()
+        # self.schemas = {}
         self.resources_group = OrderedDict()
         self.blueprint = ''
 

@@ -17,7 +17,9 @@ class {{ res.class_name }}(Resource):
         {%- endfor -%}
         {%- if ins.response_filter %}
 
-        return {{ ins.response_filter.schema.default_value }}, {{ ins.response_filter.code }}
+        return {{ ins.response_filter.many and '[' or '' }}
+        {{- ins.response_filter.schema.default_value -}}
+        {{ ins.response_filter.many and ']' or '' }}, {{ ins.response_filter.code }}
         {%- endif -%}
     {%- endfor -%}
 {%- endfor %}

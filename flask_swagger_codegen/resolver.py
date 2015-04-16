@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 import re
-from .model import SwaggerFlaskModel, Schema, Field, Resource, Method, ResponseFilter
+from collections import OrderedDict
+import operator
+from .model import (
+    SwaggerFlaskModel,
+    Schema, Field, Resource,
+    Method, ResponseFilter,
+    Validator)
 
 
 class SchemaResolver(object):
@@ -64,14 +70,23 @@ class FieldResolver(object):
             t = self.format_map[self.data['format']]
         if 'enum' in self.data:
             t = 'Enum'
+        if 'items' in self.data:
+            if isinstance(self.data['items'], basestring):
+                t = 'Nested'
+            else:
+                t = 'List'
         return t
 
     def _get_attrs(self):
         args = []
         kwargs = {}
-        if self.field.is_list:
+        if self.field.type == 'List':
             f = FieldResolver(self.data['items']).resolve()
             kwargs['cls_or_instance'] = f
+        if self.field.type == 'Nested':
+            # just for genarate schema name..
+            f = Schema(self.data['items'])
+            kwargs['nested'] = f
         if self.field.type in ['Enum', 'Select']:
             kwargs['choices'] = self.data.get('enum', [])
         for k, v in self.common_attrs_map.iteritems():
@@ -129,34 +144,47 @@ class MethodResolver(object):
         common = self.params_schema_common_parts
         for p in params:
             if 'schema' in p:
-                return self.parent.parent.schemas[p['schema']]
+                if isinstance(p['schema'], dict):
+                    many = True
+                    schema = p['schema']['items']
+                else:
+                    many = False
+                    schema = p['schema']
+                return Validator(
+                    self.parent.parent.schemas[p['schema']],
+                    many)
             data['properties'][p['name']] = {
                 c: p[c] for c in common if c in p
             }
-            if p['required']:
+            if p.get('required', False):
                 data['required'].append(p['name'])
         s = SchemaResolver(name, data).resolve()
         self.parent.parent.add_schema(s)
-        return s
+        return Validator(s, False)
 
     def resolve(self):
         m = Method(self.method, self.parent)
         # requests
         group = {}
-        for p in self.data.get('parameters'):
+        for p in self.data.get('parameters', []):
             group.setdefault(p['in'], [])
             group[p['in']].append(p)
         for loc, params in group.iteritems():
             if loc not in self.locations_map:
                 continue
             location = self.locations_map[loc]
-            schema = self._process_schema(location, params)
-            m.request_location_schemas[location] = schema
+            validator = self._process_schema(location, params)
+            m.request_location_schemas[location] = validator
         # response
         for code, r in self.data.get('responses').iteritems():
             if isinstance(code, int) and 'schema' in r:
-                schema = self.parent.parent.schemas[r['schema']]
-                m.response_filter = ResponseFilter(code, schema)
+                name = r['schema']
+                many = False
+                if isinstance(r['schema'], dict):
+                    name = r['schema']['items']
+                    many = True
+                schema = self.parent.parent.schemas[name]
+                m.response_filter = ResponseFilter(code, schema, many)
         return m
 
 
@@ -211,6 +239,7 @@ class FlaskModelResolver(object):
 
         self._resolve_schemas()
         self._resolve_resouces()
+        self._sort_schemas()
         return self.model
 
     def _resolve_schemas(self):
@@ -222,3 +251,16 @@ class FlaskModelResolver(object):
         for path, d in self.swagger['paths'].iteritems():
             r = ResourceResolver(path, d, self.model).resolve()
             self.model.add_resource(r)
+
+    def _sort_schemas(self):
+        orders = dict(zip(self.model.schemas.keys(), [0] * len(self.model.schemas)))
+        def count(name):
+            orders[name] += 1
+            for f in self.model.schemas[name].fields.values():
+                if 'nested' in f.kwargs:
+                    count(f.kwargs['nested'].name)
+        [count(name) for name in self.model.schemas.keys()]
+        schemas = OrderedDict()
+        for k, v in sorted(orders.items(), key=operator.itemgetter(1), reverse=True):
+            schemas[k] = self.model.schemas[k]
+        self.model.schemas = schemas

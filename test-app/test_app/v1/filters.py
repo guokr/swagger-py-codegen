@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 
-{% include '_do_not_change.tpl' %}
+###
+### DO NOT CHANGE THIS FILE
+### 
+### The code is auto generated, your change will be overwritten by 
+### code generating.
+###
 
 from functools import wraps
 from flask import request, Response
@@ -9,12 +14,26 @@ from flask_restful.utils import unpack
 from . import schemas
 
 filters = {
-{%- for key, filter in filters.iteritems() %}
-    {{ key }}: (
-        schemas.{{ filter.schema }},
-        {{ filter.code }},
-        {{ filter.many }}),
-{%- endfor %}
+    ('products', 'GET'): (
+        schemas.ProductSchema,
+        200,
+        True),
+    ('estimates_time', 'GET'): (
+        schemas.ProductSchema,
+        200,
+        True),
+    ('history', 'GET'): (
+        schemas.ActivitiesSchema,
+        200,
+        False),
+    ('estimates_price', 'GET'): (
+        schemas.PriceEstimateSchema,
+        200,
+        True),
+    ('me', 'GET'): (
+        schemas.ProfileSchema,
+        200,
+        False),
 }
 
 

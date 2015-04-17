@@ -6,17 +6,6 @@ import codecs
 from .generator import Generator
 
 
-class Colors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-
-
 def echo(string, level='info'):
     color = dict(
         info='\033[92m',
@@ -67,7 +56,7 @@ def write(model, base_path, app_name='app', overwrite=False):
             _write(getattr(g, 'generate_%s' % item)(), info['path'])
             echo('"' + info['path'] + '" generated.', 'warn')
         else:
-            echo('"' + info['path'] + '" allready exists, skiped.')
+            echo('"' + info['path'] + '" already exists, skipped.')
 
     for name, view in g.generate_views():
         path = pj(api_path, '%s.py' % name)
@@ -75,7 +64,7 @@ def write(model, base_path, app_name='app', overwrite=False):
             _write(view, path)
             echo('"' + path + '" generated.', 'warn')
         else:
-            echo('"' + path + '" allready exists, skiped.')
+            echo('"' + path + '" already exists, skipped.')
 
 
 def _write(content, filename):

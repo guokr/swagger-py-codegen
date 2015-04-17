@@ -66,10 +66,7 @@ class Schema(object):
 
     @property
     def default_value(self):
-        return {
-            n: f.default_value
-            for n, f in self.fields.iteritems()
-        }
+        return dict([(n, f.default_value) for n, f in self.fields.iteritems()])
 
     def __repr__(self):
         return self.class_name
@@ -117,7 +114,7 @@ class Resource(object):
 
     @property
     def name(self):
-        url = re.sub(r'\<(.*:)?(.*?)\>', r'\2', self.url)
+        url = re.sub(r'<(.*:)?(.*?)>', r'\2', self.url)
         return url.title().translate(None, '<>/_:')
 
     @property
@@ -134,7 +131,7 @@ class Resource(object):
 
     @property
     def path_params(self):
-        return map(lambda x: x[1], re.findall(r'\<(.*:)?(.*?)\>', self.url))
+        return map(lambda x: x[1], re.findall(r'<(.*:)?(.*?)>', self.url))
 
     @property
     def root_path(self):

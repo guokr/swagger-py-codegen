@@ -20,7 +20,8 @@ class Generator(object):
         return self.render('requirements.tpl')
 
     def generate_routes(self):
-        return self.render('routes.tpl',
+        return self.render(
+            'routes.tpl',
             routes=self.model.routes, resources=self.model.resources)
 
     def generate_schemas(self):

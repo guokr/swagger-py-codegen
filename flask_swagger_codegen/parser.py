@@ -21,6 +21,7 @@ class SwaggerParser(object):
 
     def __init__(self):
         super(SwaggerParser, self).__init__()
+        self.swagger = None
 
     def parse_yaml(self, yml):
         return self.parse(yaml.load(yml))

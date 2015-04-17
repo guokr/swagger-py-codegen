@@ -41,7 +41,7 @@ class FieldResolver(object):
         'float': 'Float',
         'double': 'Decimal',
         'decimal': 'Decimal',
-        'formattedstring': 'FormattedString',
+        'formattedString': 'FormattedString',
         'date': 'Date',
         'time': 'Time',
         'datetime': 'DateTime',
@@ -84,7 +84,7 @@ class FieldResolver(object):
             f = FieldResolver(self.data['items']).resolve()
             kwargs['cls_or_instance'] = f
         if self.field.type == 'Nested':
-            # just for genarate schema name..
+            # just for generate schema name..
             f = Schema(self.data['items'])
             kwargs['nested'] = f
         if self.field.type in ['Enum', 'Select']:
@@ -144,14 +144,13 @@ class MethodResolver(object):
         common = self.params_schema_common_parts
         for p in params:
             if 'schema' in p:
+                many = False
+                schema = p['schema']
                 if isinstance(p['schema'], dict):
                     many = True
                     schema = p['schema']['items']
-                else:
-                    many = False
-                    schema = p['schema']
                 return Validator(
-                    self.parent.parent.schemas[p['schema']],
+                    self.parent.parent.schemas[schema],
                     many)
             data['properties'][p['name']] = {
                 c: p[c] for c in common if c in p
@@ -206,7 +205,7 @@ class ResourceResolver(object):
 
     def _get_url(self):
         url = self.path
-        url = re.sub('{(.*?)}', '<\\1>', url)
+        url = re.sub(r'{(.*?)}', '<\\1>', url)
         for p in self.data.get('parameters', {}).get('path', {}):
             if p.type in self.path_type_mapper:
                 t = self.path_type_mapper[p.type]
@@ -232,13 +231,14 @@ class FlaskModelResolver(object):
     def __init__(self, swagger):
         super(FlaskModelResolver, self).__init__()
         self.swagger = swagger
+        self.model = None
 
     def resolve(self):
         self.model = SwaggerFlaskModel()
         self.model.blueprint = self.swagger.get('basePath', 'v1').strip('/')
 
         self._resolve_schemas()
-        self._resolve_resouces()
+        self._resolve_resources()
         self._sort_schemas()
         return self.model
 
@@ -247,18 +247,20 @@ class FlaskModelResolver(object):
             s = SchemaResolver(name, d).resolve()
             self.model.add_schema(s)
 
-    def _resolve_resouces(self):
+    def _resolve_resources(self):
         for path, d in self.swagger['paths'].iteritems():
             r = ResourceResolver(path, d, self.model).resolve()
             self.model.add_resource(r)
 
     def _sort_schemas(self):
         orders = dict(zip(self.model.schemas.keys(), [0] * len(self.model.schemas)))
-        def count(name):
-            orders[name] += 1
-            for f in self.model.schemas[name].fields.values():
+
+        def count(n):
+            orders[n] += 1
+            for f in self.model.schemas[n].fields.values():
                 if 'nested' in f.kwargs:
                     count(f.kwargs['nested'].name)
+
         [count(name) for name in self.model.schemas.keys()]
         schemas = OrderedDict()
         for k, v in sorted(orders.items(), key=operator.itemgetter(1), reverse=True):

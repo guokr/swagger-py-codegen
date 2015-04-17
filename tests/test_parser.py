@@ -6,15 +6,18 @@ from flask_swagger_codegen.resolver import FlaskModelResolver
 import yaml
 import codecs
 
+
 @pytest.fixture
 def swagger_data():
     with codecs.open('tests/swagger_specs/oauth.yml', 'r', 'utf-8') as f:
         swagger = parser.SwaggerParser().parse_yaml(f)
     return swagger
 
+
 @pytest.fixture
 def m(swagger_data):
     return FlaskModelResolver(swagger_data).resolve()
+
 
 def test_swagger_parser_definitions_ref():
     yml = '''a:
@@ -79,7 +82,7 @@ def test_generate_schemas(m):
 def test_generate_validators(m):
     g = generator.Generator(m)
 
-    expect_line = "('oauth_auth_approach', 'POST', 'headers'): schemas.OauthAuthApproachPOSTHeadersSchema,"
+    expect_line = "('oauth_auth_approach', 'POST', 'headers'): (schemas.OauthAuthApproachPOSTHeadersSchema, False),"
     found = False
     for line in g.generate_validators().splitlines():
         if expect_line in line:

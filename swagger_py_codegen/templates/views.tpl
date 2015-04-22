@@ -20,6 +20,9 @@ class {{ res.class_name }}(Resource):
         return {{ ins.response_filter.many and '[' or '' }}
         {{- ins.response_filter.schema.default_value -}}
         {{ ins.response_filter.many and ']' or '' }}, {{ ins.response_filter.code }}
+        {%- else %}
+
+        return
         {%- endif -%}
     {%- endfor -%}
 {%- endfor %}

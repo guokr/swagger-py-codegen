@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-import pytest
-from flask_swagger_codegen import parser, model, generator
-from flask_swagger_codegen.resolver import FlaskModelResolver
-
-import yaml
 import codecs
+
+import pytest
+from swagger_py_codegen import parser, generator
+from swagger_py_codegen.resolver import FlaskModelResolver
 
 
 @pytest.fixture

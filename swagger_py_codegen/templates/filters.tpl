@@ -3,7 +3,7 @@
 {% include '_do_not_change.tpl' %}
 
 from functools import wraps
-from flask import request, Response
+from flask import request, Response, abort
 from flask_restful.utils import unpack
 
 from . import schemas
@@ -38,6 +38,6 @@ def response_filter(view):
         code = filter[1]
         data, err = schema.dump(resp)
         if err:
-            abort(417, message='Expectation Failed', errors=errors)
+            abort(417, description=err)
         return data, code, headers
     return wapper

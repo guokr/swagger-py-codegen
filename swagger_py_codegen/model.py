@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
+from datetime import datetime
 from collections import OrderedDict, namedtuple
 
 
@@ -10,7 +11,8 @@ class Field(object):
         'Integer': 9263,
         'Float': 83.75,
         'Decimal': 83.7578,
-        'FormattedString': 'hello {name}'
+        'FormattedString': 'hello {name}',
+        'DateTime': datetime.now(),
     }
 
     fields_module = 'fields'

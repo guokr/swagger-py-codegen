@@ -87,6 +87,7 @@ class FieldResolver(object):
             # just for generate schema name..
             f = Schema(self.data['items'])
             kwargs['nested'] = f
+            kwargs['many'] = True
         if self.field.type in ['Enum', 'Select']:
             kwargs['choices'] = self.data.get('enum', [])
         for k, v in self.common_attrs_map.iteritems():

@@ -139,6 +139,10 @@ class Resource(object):
     def root_path(self):
         return self.url.split('/')[1].translate(None, '<>:')
 
+    @property
+    def path_name(self):
+        return '_'.join(self.url.split('/')[1:]).translate(None, '<>:')
+
     def __repr__(self):
         return self.class_name
 
@@ -155,8 +159,8 @@ class SwaggerFlaskModel(object):
         self.blueprint = ''
 
     def add_resource(self, resource):
-        self.resources_group.setdefault(resource.root_path, [])
-        self.resources_group[resource.root_path].append(resource)
+        self.resources_group.setdefault(resource.path_name, [])
+        self.resources_group[resource.path_name].append(resource)
 
     def add_schema(self, schema):
         self.schemas[schema.name] = schema

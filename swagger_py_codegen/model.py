@@ -90,6 +90,7 @@ class Method(object):
         self.response_filter = None
         self.headers = {}  # TODO: supports for swagger response header object
         self.response_example = None
+        self.scopes = []
 
     @property
     def title(self):
@@ -214,3 +215,13 @@ class SwaggerFlaskModel(object):
                     filters[
                         (ins.parent.endpoint, ins.name)] = ins.response_filter
         return filters
+
+    @property
+    def scopes(self):
+        scopes = {}
+        for res in self.resources.values():
+            for ins in res.methods.values():
+                if not ins.scopes:
+                    continue
+                scopes[(ins.parent.endpoint, ins.name)] = ins.scopes
+        return scopes

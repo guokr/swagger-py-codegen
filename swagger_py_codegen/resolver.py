@@ -186,6 +186,9 @@ class MethodResolver(object):
                     many = True
                 schema = self.parent.parent.schemas[name]
                 m.response_filter = ResponseFilter(code, schema, many)
+        # scopes
+        # just pick one form structure like this `'security': [{'OAuth2': ['open']}]`
+        m.scopes = self.data.get('security', [dict(whatever=[])]).pop().values().pop()
         return m
 
 

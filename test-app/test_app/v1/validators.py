@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 
-{% include '_do_not_change.tpl' %}
+###
+### DO NOT CHANGE THIS FILE
+### 
+### The code is auto generated, your change will be overwritten by 
+### code generating.
+###
 
 from functools import wraps
 from werkzeug.datastructures import MultiDict
@@ -10,15 +15,24 @@ from flask_restful import abort
 from . import schemas
 
 validators = {
-{%- for key, validator in validators.iteritems() %}
-    {{ key }}: (schemas.{{ validator.schema }}, {{ validator.many }}),
-{%- endfor %}
+    ('users_current', 'GET', 'headers'): (schemas.UsersCurrentGETHeadersSchema, False),
+    ('oauth_auth_approach', 'POST', 'json'): (schemas.ApproachSchema, False),
+    ('oauth_token', 'POST', 'json'): (schemas.AuthenticationSchema, False),
+    ('users', 'POST', 'headers'): (schemas.UsersPOSTHeadersSchema, False),
+    ('oauth_auth_approach', 'POST', 'headers'): (schemas.OauthAuthApproachPOSTHeadersSchema, False),
+    ('oauth_auth_approach', 'GET', 'headers'): (schemas.OauthAuthApproachGETHeadersSchema, False),
+    ('users', 'POST', 'json'): (schemas.UserSchema, False),
+    ('oauth_auth_approach_approach', 'GET', 'headers'): (schemas.OauthAuthApproachApproachGETHeadersSchema, False),
+    ('oauth_auth_approach_approach', 'DELETE', 'headers'): (schemas.OauthAuthApproachApproachDELETEHeadersSchema, False),
 }
 
 scopes = {
-{%- for key, scope in scopes.iteritems() %}
-    {{ key }}: {{ scope }},
-{%- endfor %}
+    ('oauth_auth_approach', 'GET'): ['open'],
+    ('oauth_auth_approach_approach', 'GET'): ['open'],
+    ('users_current', 'GET'): ['open'],
+    ('users', 'POST'): ['register'],
+    ('oauth_auth_approach_approach', 'DELETE'): ['open'],
+    ('oauth_auth_approach', 'POST'): ['open'],
 }
 
 

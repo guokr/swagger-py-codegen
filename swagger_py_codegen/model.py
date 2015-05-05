@@ -86,6 +86,8 @@ class Method(object):
         self.name = name.upper()
         self.request_location_schemas = {}
         self.response_filter = None
+        self.headers = {}  # TODO: supports for swagger response header object
+        self.response_example = None
 
     @property
     def title(self):
@@ -98,6 +100,19 @@ class Method(object):
     @property
     def path_params(self):
         return self.parent.path_params
+
+    @property
+    def response(self):
+        res = None
+        if self.response_example:
+            res = self.response_example
+        elif self.response_filter:
+            res = self.response_filter.schema.default_value
+            if self.response_filter.many:
+                res = [res]
+        if self.headers and self.response_filter:
+            return res, self.response_filter.code, self.headers
+        return res
 
 
 class Resource(object):

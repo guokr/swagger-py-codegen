@@ -14,15 +14,8 @@ class {{ res.class_name }}(Resource):
     def {{ method.lower() }}(self{{ ins.path_params.__len__() and ', ' or '' }}{{ ins.path_params | join(', ') }}):
         {%- for loc in ins.request_locations %}
         print g.{{ loc }}
-        {%- endfor -%}
-        {%- if ins.response_filter %}
+        {%- endfor %}
 
-        return {{ ins.response_filter.many and '[' or '' }}
-        {{- ins.response_filter.schema.default_value -}}
-        {{ ins.response_filter.many and ']' or '' }}, {{ ins.response_filter.code }}
-        {%- else %}
-
-        return
-        {%- endif -%}
+        return {{ ins.response }}
     {%- endfor -%}
 {%- endfor %}

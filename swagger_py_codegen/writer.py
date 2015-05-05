@@ -6,6 +6,11 @@ import codecs
 from .generator import Generator
 
 
+def _write(content, filename):
+    with codecs.open(filename, 'w', 'utf-8') as f:
+        f.write(content)
+
+
 def echo(string, level='info'):
     color = dict(
         info='\033[92m',
@@ -15,8 +20,8 @@ def echo(string, level='info'):
     print '%s%s%s' % (color[level], string, end)
 
 
-def write(model, base_path, app_name='app', overwrite=False):
-    app_path = pj(base_path, app_name)
+def write(model, base_path, appname='app', overwrite=False, ui=False):
+    app_path = pj(base_path, appname)
     bp_path = pj(app_path, model.blueprint)
     api_path = pj(bp_path, 'api')
     if not isdir(api_path):
@@ -67,6 +72,4 @@ def write(model, base_path, app_name='app', overwrite=False):
             echo('"' + path + '" already exists, skipped.')
 
 
-def _write(content, filename):
-    with codecs.open(filename, 'w', 'utf-8') as f:
-        f.write(content)
+

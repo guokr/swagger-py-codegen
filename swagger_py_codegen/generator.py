@@ -28,7 +28,10 @@ class Generator(object):
         return self.render('schemas.tpl', schemas=self.model.schemas)
 
     def generate_validators(self):
-        return self.render('validators.tpl', validators=self.model.validators)
+        return self.render(
+            'validators.tpl',
+            validators=self.model.validators,
+            scopes=self.model.scopes)
 
     def generate_filters(self):
         return self.render('filters.tpl', filters=self.model.filters)

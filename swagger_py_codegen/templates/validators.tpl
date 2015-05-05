@@ -15,11 +15,39 @@ validators = {
 {%- endfor %}
 }
 
+scopes = {
+{%- for key, scope in scopes.iteritems() %}
+    {{ key }}: {{ scope }},
+{%- endfor %}
+}
+
+
+class Security(object):
+
+    def __init__(self):
+        super(Security, self).__init__()
+        self._loader = lambda: []
+
+    @property
+    def scopes(self):
+        return self._loader()
+
+    def scopes_loader(self, func):
+        self._loader = func
+        return func
+
+security = Security()
+
 
 def request_validate(view):
     @wraps(view)
-    def wapper(*args, **kwargs):
+    def wrapper(*args, **kwargs):
         endpoint = request.endpoint.partition('.')[-1]
+        # scope
+        if (endpoint, request.method) in scopes and not set(
+                scopes[(endpoint, request.method)]).issubset(set(security.scopes)):
+            abort(403)
+        # data
         for loc in ['headers', 'args', 'form', 'json']:
             v = validators.get((endpoint, request.method, loc), None)
             if not v:
@@ -33,4 +61,4 @@ def request_validate(view):
                 abort(422, message='Unprocessable Entity', errors=errors)
             setattr(g, loc, result)
         return view(*args, **kwargs)
-    return wapper
+    return wrapper

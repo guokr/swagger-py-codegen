@@ -45,6 +45,7 @@ class FieldResolver(object):
         'date': 'Date',
         'time': 'Time',
         'datetime': 'DateTime',
+        'date-time': 'DateTime',
         'timedelta': 'TimeDelta',
         'fixed': 'Fixed',
         'price': 'Price',

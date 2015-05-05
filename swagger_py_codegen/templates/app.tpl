@@ -5,7 +5,7 @@ import {{ model.blueprint }}
 
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='static')
     app.register_blueprint(
         {{ model.blueprint }}.bp,
         url_prefix='/{{ model.blueprint }}')

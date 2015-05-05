@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from os import makedirs
-from os.path import join as pj, exists, isdir
+from os.path import join as pj, exists, isdir, dirname
 import codecs
 
 from .generator import Generator
@@ -71,5 +71,12 @@ def write(model, base_path, appname='app', overwrite=False, ui=False):
         else:
             echo('"' + path + '" already exists, skipped.')
 
+    if ui:
+        from distutils.dir_util import copy_tree
 
-
+        ui_path = pj(app_path, 'static/swagger-ui')
+        if not isdir(ui_path):
+            makedirs(ui_path)
+        ui_src = pj(dirname(__file__), 'templates/ui')
+        copy_tree(ui_src, ui_path)
+        echo('swagger ui generated', 'warn')

@@ -14,7 +14,7 @@ setup(
     version=version,
     author='Rejown',
     author_email='rejown@gmail.com',
-    url='http://github.com/rejown/swagger-py-codegen',
+    url='http://github.com/guokr/swagger-py-codegen',
     packages=['swagger_py_codegen'],
     package_data={'swagger_py_codegen': ['templates/*']},
     include_package_data=True,

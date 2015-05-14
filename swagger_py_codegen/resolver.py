@@ -54,10 +54,10 @@ class FieldResolver(object):
         'email': 'Email'
     }
 
-    common_attrs_map = {
-        'default': 'default',
-        'required': 'required'
-    }
+    common_attrs_pair = [
+        ('default', 'default'),
+        ('default', 'missing'),
+        ('required', 'required')]
 
     def __init__(self, data):
         super(FieldResolver, self).__init__()
@@ -91,7 +91,7 @@ class FieldResolver(object):
             kwargs['many'] = True
         if self.field.type in ['Enum', 'Select']:
             kwargs['choices'] = self.data.get('enum', [])
-        for k, v in self.common_attrs_map.iteritems():
+        for k, v in self.common_attrs_pair:
             if k in self.data:
                 kwargs[v] = self.data[k]
         # TODO: init validators from data
@@ -200,7 +200,7 @@ class ResourceResolver(object):
         'float': 'float',
         'double': 'float'
     }
-    support_methods = ['get', 'put', 'post', 'delete', 'patch']
+    support_methods = ['get', 'post', 'put', 'delete', 'patch']
 
     def __init__(self, path, data, parent):
         super(ResourceResolver, self).__init__()
@@ -221,10 +221,11 @@ class ResourceResolver(object):
         url = self._get_url()
         resource = Resource(url, self.parent)
 
-        results = {}
-        for method, data in self.data.iteritems():
-            if method not in self.support_methods:
+        results = OrderedDict()
+        for method in self.support_methods:
+            if method not in self.data.keys():
                 continue
+            data = self.data[method]
             m = MethodResolver(method, data, resource).resolve()
             results[method.upper()] = m
         resource.methods = results

@@ -16,7 +16,7 @@ setup(
     author_email='rejown@gmail.com',
     url='http://github.com/guokr/swagger-py-codegen',
     packages=['swagger_py_codegen'],
-    package_data={'swagger_py_codegen': ['templates/*']},
+    package_data={'templates': ['swagger_py_codegen/templates/*']},
     include_package_data=True,
     entry_points={
         'console_scripts': [

@@ -223,7 +223,7 @@ class ResourceResolver(object):
 
         results = OrderedDict()
         for method in self.support_methods:
-            if method not in self.data.keys():
+            if method not in self.data:
                 continue
             data = self.data[method]
             m = MethodResolver(method, data, resource).resolve()

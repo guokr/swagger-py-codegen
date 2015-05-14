@@ -1,2 +1,2 @@
 Flask-RESTful
-marshmallow
+marshmallow>=2.0.0

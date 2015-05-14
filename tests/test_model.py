@@ -29,3 +29,17 @@ def test_method_response_default_values_01():
     assert method.response == (method.response_example, 200, method.headers), 'method response value is not expected.'
 
 
+def test_model_supported_scope_set():
+    m = model.SwaggerFlaskModel()
+    resource_a = model.Resource('/a', m)
+
+    method_a = model.Method('get', resource_a)
+    method_a.scopes = ['scope_a', 'scope_b']
+    method_b = model.Method('post', resource_a)
+    method_b.scopes = ['scope_b', 'scope_c']
+
+    resource_a.methods = {'a': method_a, 'b': method_b}
+
+    m.add_resource(resource_a)
+    assert m.supported_scope_set == set(['scope_a', 'scope_b', 'scope_c'])
+

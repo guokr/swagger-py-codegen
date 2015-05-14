@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
+from itertools import chain
 from datetime import datetime
 from collections import OrderedDict, namedtuple
 
@@ -225,3 +226,7 @@ class SwaggerFlaskModel(object):
                     continue
                 scopes[(ins.parent.endpoint, ins.name)] = ins.scopes
         return scopes
+
+    @property
+    def supported_scope_set(self):
+        return set(chain(*self.scopes.values()))

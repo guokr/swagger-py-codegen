@@ -76,6 +76,8 @@ class FieldResolver(object):
                 t = 'Nested'
             else:
                 t = 'List'
+        if 'schema' in self.data:
+            t = 'Nested'
         return t
 
     def _get_attrs(self):
@@ -85,10 +87,14 @@ class FieldResolver(object):
             f = FieldResolver(self.data['items']).resolve()
             kwargs['cls_or_instance'] = f
         if self.field.type == 'Nested':
-            # just for generate schema name..
-            f = Schema(self.data['items'])
-            kwargs['nested'] = f
-            kwargs['many'] = True
+            if 'items' in self.data:
+                # just for generate schema name..
+                f = Schema(self.data['items'])
+                kwargs['nested'] = f
+                kwargs['many'] = True
+            elif 'schema' in self.data:
+                f = Schema(self.data['schema'])
+                kwargs['nested'] = f
         if self.field.type in ['Enum', 'Select']:
             kwargs['choices'] = self.data.get('enum', [])
         for k, v in self.common_attrs_pair:

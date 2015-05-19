@@ -72,6 +72,10 @@ definitions:
         type: string
       avatar:
         type: string
+  Admin:
+    properties:
+      user:
+        $ref: '#definitions/User'
   Error:
     properties:
       code:

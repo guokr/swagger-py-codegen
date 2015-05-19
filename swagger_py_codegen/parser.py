@@ -41,6 +41,8 @@ class SwaggerParser(object):
                 if paths[-1] in ('schema', 'items'):
                     self.swagger.set_by_keys(
                         paths, node['$ref'].split('/')[-1])
+                elif len(paths) == 4 and paths[0] == 'definitions' and paths[2] == 'properties':
+                    self.swagger.set_by_keys(paths, {'schema': node['$ref'].split('/')[-1]})
                 else:
                     self.swagger.set_by_keys(
                         paths, self.swagger.get_by_ref(node['$ref']))

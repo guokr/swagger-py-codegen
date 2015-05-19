@@ -7,15 +7,10 @@ from swagger_py_codegen.resolver import FlaskModelResolver
 
 
 @pytest.fixture
-def swagger_data():
+def m():
     with codecs.open('tests/swagger_specs/oauth.yml', 'r', 'utf-8') as f:
-        swagger = parser.SwaggerParser().parse_yaml(f)
-    return swagger
-
-
-@pytest.fixture
-def m(swagger_data):
-    return FlaskModelResolver(swagger_data).resolve()
+        model = parser.parse_yaml(f)
+    return model
 
 
 def test_swagger_parser_definitions_ref():
@@ -99,3 +94,9 @@ def test_generate_views(m):
             if expect_line in line:
                 found = True
     assert found is True
+
+
+def test_ref_in_definition(m):
+    assert 'Admin' in m.schemas
+    assert m.schemas['Admin'].fields['user'].kwargs['nested'].class_name == 'UserSchema'
+

@@ -22,8 +22,3 @@ Create all:
 swagger-py-codegen --swagger-doc api.yml example-app
 ```
 
-## TODO
-
-- validation support
-- generate client
-- generate tests

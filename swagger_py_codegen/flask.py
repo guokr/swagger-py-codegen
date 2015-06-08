@@ -120,6 +120,7 @@ class FlaskGenerator(CodeGenerator):
     def __init__(self, swagger):
         super(FlaskGenerator, self).__init__(swagger)
         self.with_spec = False
+        self.with_ui = False
 
     def _dependence_callback(self, code):
         if not isinstance(code, Schema):
@@ -217,5 +218,6 @@ class FlaskGenerator(CodeGenerator):
 
         yield Requirements()
 
-        yield UIIndex(dict(spec_path='../%s/swagger.json' % self.swagger.module_name))
+        if self.with_ui:
+            yield UIIndex(dict(spec_path='/static/%s/swagger.json' % self.swagger.module_name))
 

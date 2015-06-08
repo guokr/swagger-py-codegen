@@ -41,6 +41,7 @@ def write(dist, content):
 
 def _copy_ui_dir(ui_dest, ui_src):
     from distutils.dir_util import copy_tree
+    from os import unlink
 
     if exists(ui_dest):
         status = 'skip'
@@ -48,6 +49,7 @@ def _copy_ui_dir(ui_dest, ui_src):
         status = 'generate'
         makedirs(ui_dest)
         copy_tree(ui_src, ui_dest)
+        unlink(join(ui_dest, 'index.html'))
     return status
 
 
@@ -75,6 +77,7 @@ def generate(destination, swagger_doc, force=False, package=None,
     swagger = Swagger(data)
     generator = FlaskGenerator(swagger)
     generator.with_spec = specification
+    generator.with_ui = ui
     template = Template()
     if template_dir:
         template.add_searchpath(template_dir)

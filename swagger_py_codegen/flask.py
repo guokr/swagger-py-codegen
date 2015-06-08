@@ -205,7 +205,11 @@ class FlaskGenerator(CodeGenerator):
                 import simplejson as json
             except ImportError:
                 import json
-            yield Specification(dict(swagger=json.dumps(self.swagger.data, indent=2)))
+            swagger = {}
+            swagger.update(self.swagger.data)
+            swagger.pop('host')
+            swagger.pop('schemes')
+            yield Specification(dict(swagger=json.dumps(swagger, indent=2)))
 
         yield Validator()
 

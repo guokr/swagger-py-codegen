@@ -39,6 +39,18 @@ def write(dist, content):
         f.write(content)
 
 
+def _copy_ui_dir(ui_dest, ui_src):
+    from distutils.dir_util import copy_tree
+
+    if exists(ui_dest):
+        status = 'skip'
+    else:
+        status = 'generate'
+        makedirs(ui_dest)
+        copy_tree(ui_src, ui_dest)
+    return status
+
+
 @click.command()
 @click.argument('destination', required=True)
 @click.option('-s', '--swagger', '--swagger-doc',
@@ -63,12 +75,17 @@ def generate(destination, swagger_doc, force=False, package=None,
     swagger = Swagger(data)
     generator = FlaskGenerator(swagger)
     generator.with_spec = specification
-    # TODO UI
     template = Template()
     if template_dir:
         template.add_searchpath(template_dir)
     env = dict(package=package,
                module=swagger.module_name)
+
+    if ui:
+        ui_dest = join(destination, '%(package)s/static/swagger-ui' % env)
+        ui_src = join(dirname(__file__), 'templates/ui')
+        status = _copy_ui_dir(ui_dest, ui_src)
+        click.secho('%-12s%s' % (status, ui_dest))
 
     for code in generator.generate():
         source = template.render_code(code)
@@ -87,3 +104,4 @@ def generate(destination, swagger_doc, force=False, package=None,
 
         if status != 'skipped':
             write(dest, source)
+

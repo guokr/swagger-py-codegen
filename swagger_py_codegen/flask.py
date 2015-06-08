@@ -59,6 +59,12 @@ class Requirements(Code):
     dest_template = 'requirements.txt'
 
 
+class UIIndex(Code):
+
+    template = 'ui/index.html'
+    dest_template = '%(package)s/static/swagger-ui/index.html'
+
+
 def _swagger_to_flask_url(url, swagger_path_node):
     types = {
         'integer': 'int',
@@ -210,4 +216,6 @@ class FlaskGenerator(CodeGenerator):
                        base_path=self.swagger.base_path))
 
         yield Requirements()
+
+        yield UIIndex(dict(spec_path='../%s/swagger.json' % self.swagger.module_name))
 

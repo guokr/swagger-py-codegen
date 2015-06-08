@@ -20,10 +20,10 @@ setup(
     include_package_data=True,
     entry_points={
         'console_scripts': [
-            'swagger_py_codegen=swagger_py_codegen:codegen'
+            'swagger_py_codegen=swagger_py_codegen:generate'
         ]
     },
-    install_requires=['PyYAML', 'click', 'jinja2'],
+    install_requires=['PyYAML', 'click', 'jinja2', 'dpath'],
     tests_require=['pytest'],
     classifiers=[
         'Development Status :: 3 - Alpha',

@@ -53,6 +53,12 @@ class App(Code):
     dest_template = '%(package)s/__init__.py'
 
 
+class Requirements(Code):
+
+    template = 'flask/requirements.tpl'
+    dest_template = 'requirements.txt'
+
+
 def _swagger_to_flask_url(url, swagger_path_node):
     types = {
         'integer': 'int',
@@ -203,5 +209,5 @@ class FlaskGenerator(CodeGenerator):
         yield App(dict(blueprint=self.swagger.module_name,
                        base_path=self.swagger.base_path))
 
-        # TODO: requirments
+        yield Requirements()
 

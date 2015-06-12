@@ -57,7 +57,10 @@ def request_validate(view):
                 scopes[(endpoint, request.method)]).issubset(set(security.scopes)):
             abort(403)
         # data
-        locations = validators.get((endpoint, request.method), {})
+        method = request.method
+        if method == 'HEAD':
+            method = 'GET'
+        locations = validators.get((endpoint, method), {})
         for location, schema in locations.iteritems():
             value = getattr(request, location, MultiDict())
             validator = FlaskValidatorAdaptor(schema)
@@ -77,7 +80,10 @@ def response_filter(view):
         resp = view(*args, **kwargs)
 
         endpoint = request.endpoint.partition('.')[-1]
-        filter = filters.get((endpoint, request.method), None)
+        method = request.method
+        if method == 'HEAD':
+            method = 'GET'
+        filter = filters.get((endpoint, method), None)
         if not filter:
             return resp
         if isinstance(resp, Response):

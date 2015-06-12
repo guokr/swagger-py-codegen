@@ -14,21 +14,37 @@ from .schemas import (
     validators, filters, scopes, security, merge_default, object_to_dict)
 
 
-def _to_dict(obj, location, schema):
-    if location == 'json':
-        return obj
-    if obj is None:
-        return obj
-    if isinstance(obj, Headers):
-        obj = MultiDict(obj.iteritems())
-    result = {}
-    for k, v in obj.iterlists():
-        type_ = schema['properties'].get(k, {}).get('type')
-        if type_ == 'array':
-            result[k] = v
-        else:
-            result[k] = v[0]
-    return result
+class FlaskValidatorAdaptor(object):
+
+    def __init__(self, schema):
+        self.validator = Draft4Validator(schema)
+
+    def type_convert(self, obj):
+        if obj is None:
+            return None
+        if isinstance(obj, dict) and not isinstance(obj, MultiDict):
+            return obj
+        if isinstance(obj, Headers):
+            obj = MultiDict(obj.iteritems())
+        result = dict()
+        convert_funs = {
+            'integer': lambda v: int(v[0]),
+            'boolean': lambda v: v[0].lower() not in ['n', 'no', 'false', '', '0'],
+            'null': lambda v: None,
+            'number': lambda v: float(v[0]),
+            'array': lambda v: v,
+            'string': lambda v: v[0]
+        }
+        for k, values in obj.iterlists():
+            type_ = self.validator.schema['properties'].get(k, {}).get('type')
+            fun = convert_funs.get(type_, lambda v: v[0])
+            result[k] = fun(values)
+        return result
+
+    def validate(self, value):
+        value = self.type_convert(value)
+        errors = list(e.message for e in self.validator.iter_errors(value))
+        return merge_default(self.validator.schema, value), errors
 
 
 def request_validate(view):
@@ -44,12 +60,10 @@ def request_validate(view):
         locations = validators.get((endpoint, request.method), {})
         for location, schema in locations.iteritems():
             value = getattr(request, location, MultiDict())
-            value = _to_dict(value, location, schema)
-            validator = Draft4Validator(schema)
-            errors = list(e.message for e in validator.iter_errors(value))
+            validator = FlaskValidatorAdaptor(schema)
+            result, errors = validator.validate(value)
             if errors:
                 abort(422, message='Unprocessable Entity', errors=errors)
-            result = merge_default(schema, value)
             setattr(g, location, result)
         return view(*args, **kwargs)
 

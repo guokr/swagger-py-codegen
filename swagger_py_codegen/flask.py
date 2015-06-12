@@ -207,8 +207,8 @@ class FlaskGenerator(CodeGenerator):
                 import json
             swagger = {}
             swagger.update(self.swagger.data)
-            swagger.pop('host')
-            swagger.pop('schemes')
+            swagger.pop('host', None)
+            swagger.pop('schemes', None)
             yield Specification(dict(swagger=json.dumps(swagger, indent=2)))
 
         yield Validator()

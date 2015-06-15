@@ -10,9 +10,13 @@ Generate Flask-RESTful application code from a Swagger Specification doc.
 
 ## Install
 
-```
-pip install swagger-py-codegen
-```
+Using **pip**
+
+    pip install swagger-py-codegen
+
+or via sources:
+
+    python setup.py install
 
 ## Usage
 

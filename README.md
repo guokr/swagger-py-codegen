@@ -50,13 +50,11 @@ Command Options:
 
 ## Examples:
 
-Generate example-app from apis.yml:  
+Generate example-app from [apis.yml](https://github.com/guokr/swagger-py-codegen/blob/jsonschema/api.yml "Title"):  
 
-    $ mkdir example-app
     $tree
 	.
 	|__ api.yml
-	|__ example-app 
 
     $ swagger_py_codegen -s  api.yml  example-app -p demo
     $ tree
@@ -91,87 +89,13 @@ Start example-app:
 
 And generate example-app-ui from apis.yml with ui:   
 
-    $ mkdir example-app
-    $tree
-	.
-	|__ api.yml
-	|__ example-app 
-
     $ swagger_py_codegen -s  api.yml  example-app-ui -p demo-ui --ui
-    $ tree
-	.
-	|__ api.yml
-	|__ example-app-ui
-	   |__ demo-ui
-	   |  |__ __init__.py
-	   |  |__ static 
-	   |  |  |__swagger-ui
-	   |  |     |__ css
-	   |  |     |  |__ print.css
-	   |  |     |  |__ reset.css
-	   |  |     |  |__ screen.css
-	   |  |     |  |__ typography.css
-	   |  |     |__ fonts
-	   |  |     |  |__ droid-sans-v6-latin-700.eot
-	   |  |     |  |__ droid-sans-v6-latin-700.svg
-	   |  |     |  |__ droid-sans-v6-latin-700.ttf
-	   |  |     |  |__ droid-sans-v6-latin-700.woff
-	   |  |     |  |__ droid-sans-v6-latin-700.woff2
-	   |  |     |  |__ droid-sans-v6-latin-regular.eot
-	   |  |     |  |__ droid-sans-v6-latin-regular.svg
-	   |  |     |  |__ droid-sans-v6-latin-regular.ttf
-	   |  |     |  |__ droid-sans-v6-latin-regular.woff
-	   |  |     |  |__ droid-sans-v6-latin-regular.woff2
-	   |  |     |__ images
-	   |  |     |  |__ explorer_icons.png
-	   |  |     |  |__ favicon-16x16.png
-	   |  |     |  |__ favicon-32x32.png
-	   |  |     |  |__ favicon.ico
-	   |  |     |  |__ logo_small.png
-	   |  |     |  |__ pet_store_api.png
-	   |  |     |  |__ throbber.gif
-	   |  |     |  |__  wordnik_api.png
-	   |  |     |__ index.html
-	   |  |     |__ lib
-	   |  |     |  |__ backbone-min.js
-	   |  |     |  |__ handlebars-2.0.0.js
-	   |  |     |  |__ highlight.7.3.pack.js
-	   |  |     |  |__ jquery-1.8.0.min.js
-	   |  |     |  |__ jquery.ba-bbq.min.js
-	   |  |     |  |__ jquery.slideto.min.js
-	   |  |     |  |__ jquery.wiggle.min.js
-	   |  |     |  |__ marked.js
-	   |  |     |  |__ swagger-oauth.js
-	   |  |     |  |__ underscore-min.js
-	   |  |     |  |__ underscore-min.map
-	   |  |     |  |__ o2c.html
-	   |  |     |__ swagger-ui.js
-	   |  |     |__ swagger-ui.min.js
-	   |  |__ v1
-	   |     |__ api
-	   |     |  |__ __init__.py
-	   |     |  |__ oauth_auth_approach_approach.py
-	   |     |  |__ oauth_auth_approach.py
-	   |     |  |__ users_token.py
-	   |     |  |__ users_current.py
-	   |     |  |__ users.py
-	   |     |__ __init__.py
-	   |     |__ routes.py
-	   |     |__ schemas.py
-	   |     |__ validators.py
-	   |__ requirements.txt
-
-The example-app-ui follows are same with example-app.
 
 ## Authors
 --------
-
-* Rejown ( rejown@gmail.com )
-* yimiqisan ( yimiqisan@gmail.com )
-* softlns （softliunaisen@gmai.com )
+See the [AUTHORS](https://github.com/guokr/swagger-py-codegen/blob/jsonschema/AUTHORS "Title").
 
 
 ## License
 --------
 MIT 
-

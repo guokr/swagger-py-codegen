@@ -1,6 +1,6 @@
 # Flask RESTful Application Code Generator
 
-[![Build Status](https://travis-ci.org/softlns/swagger-py-codegen.svg)](https://travis-ci.org/softlns/swagger-py-codegen)
+[![Build Status](https://travis-ci.org/guokr/swagger-py-codegen.svg)](https://travis-ci.org/guokr/swagger-py-codegen)
 
 ## Overview
 

@@ -61,6 +61,8 @@ definitions:
             - register
             - open
   Approach:
+    required:
+      - approach
     properties:
       approach:
         type: string
@@ -87,7 +89,7 @@ definitions:
         type: string
 parameters:
   AccessToken:
-    name: access_token
+    name: Authentication
     in: header
     required: true
     type: string

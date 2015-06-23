@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import Flask, Blueprint
+from flask import Blueprint
 import flask_restful as restful
 
 from .routes import routes
@@ -8,9 +8,9 @@ from .validators import security
 
 @security.scopes_loader
 def current_scopes():
-    return {{ model.supported_scope_set }}
+    return {{ scopes_supported }}
 
-bp = Blueprint('{{ model.blueprint }}', __name__)
+bp = Blueprint('{{ blueprint }}', __name__)
 api = restful.Api(bp, catch_all_404s=True)
 
 for route in routes:

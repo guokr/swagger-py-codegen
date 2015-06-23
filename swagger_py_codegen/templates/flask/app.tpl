@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 from flask import Flask
 
-import {{ model.blueprint }}
+import {{ blueprint }}
 
 
 def create_app():
     app = Flask(__name__, static_folder='static')
     app.register_blueprint(
-        {{ model.blueprint }}.bp,
-        url_prefix='/{{ model.blueprint }}')
+        {{ blueprint }}.bp,
+        url_prefix='{{ base_path }}')
     return app
 
 if __name__ == '__main__':

@@ -1,59 +1,70 @@
 # -*- coding: utf-8 -*-
-import yaml
-from .resolver import FlaskModelResolver
+import string
+import dpath.util
 
 
-class Swagger(dict):
-
-    def get_by_ref(self, ref):
-        host, path = ref.split('#/')
-        # TODO: load from remote host
-        return self.get_by_keys(path.split('/'))
-
-    def get_by_keys(self, keys):
-        return reduce(lambda o, k: o[k], keys, self)
-
-    def set_by_keys(self, keys, value):
-        self.get_by_keys(keys[:-1])[keys[-1]] = value
+def schema_var_name(path):
+    return ''.join(map(string.capitalize, path))
 
 
-class SwaggerParser(object):
+class RefNode(dict):
 
-    def __init__(self):
-        super(SwaggerParser, self).__init__()
-        self.swagger = None
+    def __init__(self, data, ref):
+        self.ref = ref
+        super(RefNode, self).__init__(data)
 
-    def parse_yaml(self, yml):
-        return self.parse(yaml.load(yml))
-
-    def parse(self, content):
-        self.swagger = Swagger(content)
-        self._resolve_refs()
-        return self.swagger
-
-    def _resolve_refs(self):
-        self._walk(self.swagger, [])
-
-    def _walk(self, node, paths):
-        paths = list(paths)
-        if isinstance(node, dict):
-            if '$ref' in node:
-                if paths[-1] in ('schema', 'items'):
-                    self.swagger.set_by_keys(
-                        paths, node['$ref'].split('/')[-1])
-                elif len(paths) == 4 and paths[0] == 'definitions' and paths[2] == 'properties':
-                    self.swagger.set_by_keys(paths, {'schema': node['$ref'].split('/')[-1]})
-                else:
-                    self.swagger.set_by_keys(
-                        paths, self.swagger.get_by_ref(node['$ref']))
-                return
-            for k, v in node.iteritems():
-                self._walk(v, paths + [k])
-        elif isinstance(node, list) and not isinstance(node, basestring):
-            for k, v in enumerate(node):
-                self._walk(v, paths + [k])
+    def __repr__(self):
+        return schema_var_name(self.ref)
 
 
-def parse_yaml(yaml_content):
-    swagger = SwaggerParser().parse_yaml(yaml_content)
-    return FlaskModelResolver(swagger).resolve()
+class Swagger(object):
+
+    separator = '\0'
+
+    def __init__(self, data):
+        self.data = data
+        self._definitions = []
+        for path, _ in self.search(['definitions', '*']):
+            self._definitions.append(path)
+        self._process_ref()
+
+    def _process_ref(self):
+        for path, ref in self.search(['**', '$ref']):
+            ref = ref.lstrip('#/').split('/')
+            ref = tuple(ref)
+            data = self.get(ref)
+
+            if ref in self._definitions:
+                self._definitions.remove(ref)
+            self._definitions.insert(0, ref)
+
+            path = path[:-1]
+            self.set(path, RefNode(data, ref))
+
+    def search(self, path):
+        for p, d in dpath.util.search(self.data, list(path), True, self.separator):
+            yield tuple(p.split(self.separator)), d
+
+    def get(self, path):
+        return dpath.util.get(self.data, list(path))
+
+    def set(self, path, data):
+        dpath.util.set(self.data, list(path), data)
+
+    @property
+    def definitions(self):
+        return self._definitions
+
+    @property
+    def scopes_supported(self):
+        for _, data in self.search(['securityDefinitions', '*', 'scopes']):
+            return data.keys()
+        return []
+
+    @property
+    def module_name(self):
+        return self.base_path.strip('/').replace('/', '_')
+
+    @property
+    def base_path(self):
+        return self.data.get('basePath', '/v1')

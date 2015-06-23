@@ -51,7 +51,7 @@ Command Options:
 
 ## Examples:
 
-Generate example-app from [apis.yml](https://github.com/guokr/swagger-py-codegen/blob/jsonschema/api.yml "Title"):  
+Generate example-app from [apis.yml](https://github.com/guokr/swagger-py-codegen/blob/master/api.yml "Title"):  
 
     $tree
 	.
@@ -94,7 +94,7 @@ And generate example-app-ui from apis.yml with ui:
 
 ## Authors
 --------
-See the [AUTHORS](https://github.com/guokr/swagger-py-codegen/blob/jsonschema/AUTHORS "Title").
+See the [AUTHORS](https://github.com/guokr/swagger-py-codegen/blob/master/AUTHORS "Title").
 
 
 ## License

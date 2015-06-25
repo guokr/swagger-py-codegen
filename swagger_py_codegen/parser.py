@@ -24,22 +24,51 @@ class Swagger(object):
     def __init__(self, data):
         self.data = data
         self._definitions = []
-        for path, _ in self.search(['definitions', '*']):
-            self._definitions.append(path)
+        self._references_sort()
         self._process_ref()
 
     def _process_ref(self):
+
         for path, ref in self.search(['**', '$ref']):
             ref = ref.lstrip('#/').split('/')
             ref = tuple(ref)
             data = self.get(ref)
 
-            if ref in self._definitions:
-                self._definitions.remove(ref)
-            self._definitions.insert(0, ref)
-
             path = path[:-1]
             self.set(path, RefNode(data, ref))
+
+    def _references_sort(self):
+
+        def get_definition_refs():
+            definition_refs_default = {}
+            definition_refs = {}
+            for path, _ in self.search(['definitions', '*']):
+                definition_refs_default[path] = set([])
+            for path, ref in self.search(['definitions', '**', '$ref']):
+                schema = tuple(path[0:2])
+                ref = ref.lstrip('#/').split('/')
+                ref = tuple(ref)
+
+                if schema in definition_refs.keys():
+                    definition_refs[schema].add(ref)
+                else:
+                    definition_refs[schema] = set([ref])
+
+            definition_refs_default.update(definition_refs)
+            return definition_refs_default
+
+        definition_refs = get_definition_refs()
+        while definition_refs:
+            ready = {definition for definition, refs in definition_refs.iteritems() if not refs}
+            if not ready:
+                msg = '$ref circular references found!\n'
+                raise ValueError(msg)
+            for definition in ready:
+                del definition_refs[definition]
+            for refs in definition_refs.itervalues():
+                refs.difference_update(ready)
+
+            self._definitions += ready
 
     def search(self, path):
         for p, d in dpath.util.search(self.data, list(path), True, self.separator):

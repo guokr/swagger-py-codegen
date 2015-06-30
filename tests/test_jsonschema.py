@@ -251,3 +251,108 @@ def test_object_to_dict():
     assert user['address']['city'] == 'beijing'
     assert user['age'] == 18
     assert user['roles'] == ['user']
+
+
+def test_build_default_01():
+    from swagger_py_codegen.jsonschema import build_default
+
+    schema = {
+        'type': 'object',
+        'properties': {
+            'id': { 'type': 'integer' },
+            'name': { 'type': 'string' },
+            'gender': { 'type': 'string', 'default': 'unknown' },
+            'address': {
+                'type': 'object',
+                'properties': {
+                    'city': { 'type': 'string', 'default': 'beijing' },
+                    'country': { 'type': 'string', 'default': 'china'}
+                }
+            },
+            'age': { 'type': 'integer' },
+            'roles': {
+                'type': 'array',
+                'items': {
+                    'type': 'string',
+                    'default': 'user',
+                    'enum': ['user', 'admin']
+                }
+            }
+        }
+    }
+    result = build_default(schema)
+    assert result['gender'] == 'unknown'
+    assert result['address']['city'] == 'beijing'
+    assert result['roles'][0] == 'user'
+
+
+def test_build_default_02():
+    from swagger_py_codegen.jsonschema import build_default
+
+    schema = {
+        'type': 'array',
+        'items': {
+                'type': 'object',
+                'properties': {
+                    'city': { 'type': 'string', 'default': 'beijing' },
+                    'country': { 'type': 'string', 'default': 'china'}
+                }
+        }
+    }
+    result = build_default(schema)
+    assert result[0]['city'] == 'beijing'
+    assert result[0]['country'] == 'china'
+
+
+def test_merge_default_01():
+    from swagger_py_codegen.jsonschema import merge_default
+
+    schema = {
+        'type': 'object',
+        'properties': {
+            'id': { 'type': 'integer' },
+            'name': { 'type': 'string' },
+            'gender': { 'type': 'string', 'default': 'unknown' },
+            'address': {
+                'type': 'object',
+                'properties': {
+                    'city': { 'type': 'string', 'default': 'beijing' },
+                    'country': { 'type': 'string', 'default': 'china'}
+                }
+            },
+            'age': { 'type': 'integer' },
+            'roles': {
+                'type': 'array',
+                'items': {
+                    'type': 'string',
+                    'default': 'user',
+                    'enum': ['user', 'admin']
+                }
+            }
+        }
+    }
+    default = {
+        'id': 123,
+        'name': 'bob',
+        'gender': 'male',
+        'address': {
+            'city': 'shenzhen'
+        },
+        'roles': ['admin', 'user']
+    }
+    result = merge_default(schema, default)
+    assert result['id'] == 123
+    assert result['name'] == 'bob'
+    assert result['address'] == {'city': 'shenzhen', 'country': 'china'}
+    assert result['roles'] == ['admin', 'user']
+
+    default = {
+        'id': 123,
+        'name': 'bob',
+        'gender': 'male',
+        'address': {
+            'city': 'shenzhen'
+        }
+    }
+    result = merge_default(schema, default)
+    assert result['roles'] == ['user']

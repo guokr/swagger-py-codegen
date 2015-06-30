@@ -110,33 +110,43 @@ def merge_default(schema, value):
     # TODO: more types support
     type_defaults = {
         'integer': 9573,
-        'string': 'something'
+        'string': 'something',
+        'object': {},
+        'array': [],
+        'boolean': False
     }
-    default = {}
-    default.update(value or {})
+    type_ = schema.get('type', 'object')
+
     if not schema:
         return None
-    for name, property_ in schema.get('properties', {}).iteritems():
-        if name in default:
-            continue
-        if 'default' in property_:
-            default[name] = property_['default']
-            continue
-        if 'items' in property_ and 'default' in property_['items']:
-            default[name] = [property_['items']['default']]
-            continue
-        if 'properties' in property_:
-            default[name] = merge_default(property_, default.get(name))
-            continue
-        if name not in schema.get('required', []):
-            continue
-        type_ = property_.get('type')
-        default[name] = type_defaults.get(type_, 'somethingelse')
-    return default
+
+    if type_ == 'object':
+        result = type_defaults.get(type_)
+        default = schema.get('default', {})
+        default.update(value or {})
+        for name, property_ in schema.get('properties', {}).iteritems():
+            if (name in default 
+                    or 'default' in property_ 
+                    or name in schema.get('required', [])
+                    or property_.get('type') in ('object', 'array')):
+                result[name] = merge_default(property_, default.get(name))
+    elif type_ == 'array':
+        result = type_defaults.get(type_)
+        if 'default' in schema:
+            result = schema.get('default', [])
+        elif value and isinstance(value, list):
+            result = value
+        else:
+            item = build_default(schema.get('items'))
+            result.append(item)
+    else:
+        result = value or schema.get('default') or type_defaults.get(type_)
+
+    return result
 
 
 def build_default(schema):
-    return merge_default(schema, {})
+    return merge_default(schema, None)
 
 
 def object_to_dict(schema, obj):

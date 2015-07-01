@@ -95,7 +95,7 @@ def build_data(swagger):
         filters=filters,
         scopes=scopes,
         merge_default=getsource(merge_default),
-        object_to_dict=getsource(object_to_dict)
+        normalize=getsource(normalize)
     )
     return data
 
@@ -115,61 +115,89 @@ def merge_default(schema, value):
         'array': [],
         'boolean': False
     }
-    type_ = schema.get('type', 'object')
 
-    if not schema:
-        return None
-
-    if type_ == 'object':
-        result = type_defaults.get(type_)
-        default = schema.get('default', {})
-        default.update(value or {})
-        for name, property_ in schema.get('properties', {}).iteritems():
-            if (name in default 
-                    or 'default' in property_ 
-                    or name in schema.get('required', [])
-                    or property_.get('type') in ('object', 'array')):
-                result[name] = merge_default(property_, default.get(name))
-    elif type_ == 'array':
-        result = type_defaults.get(type_)
-        if 'default' in schema:
-            result = schema.get('default', [])
-        elif value and isinstance(value, list):
-            result = value
-        else:
-            item = build_default(schema.get('items'))
-            result.append(item)
-    else:
-        result = value or schema.get('default') or type_defaults.get(type_)
-
-    return result
+    return normalize(schema, value, type_defaults)[0]
 
 
 def build_default(schema):
     return merge_default(schema, None)
 
 
-def object_to_dict(schema, obj):
-    if isinstance(obj, dict):
-        return obj, []
-    if not schema:
-        return None, []
-    data = {}
+def normalize(schema, data, required_defaults=None):
+    
+    if required_defaults is None:
+        required_defaults = {}
     errors = []
-    required = schema.get('required', [])
-    for name, property_ in schema.get('properties', {}).iteritems():
-        if hasattr(obj, name):
-            if 'properties' in property_:
-                data[name], errs = object_to_dict(property_, getattr(obj, name))
-                errors.extend(errs)
+
+    class DataWrapper(object):
+
+        def __init__(self, data):
+            super(DataWrapper, self).__init__()
+            self.data = data
+
+        def get(self, key, default=None):
+            if isinstance(self.data, dict):
+                return self.data.get(key, default)
+            if hasattr(self.data, key):
+                return getattr(self.data, key)
             else:
-                data[name] = getattr(obj, name)
-        elif 'default' in property_:
-            data[name] = property_['default']
-        elif 'items' in property_ and 'default' in property_['items']:
-            data[name] = [property_['items']['default']]
-        elif name in required:
-            errors.append(dict(name='property_missing',
-                               message='`%s` is required' % name))
-    return data, errors
+                return default
+
+        def has(self, key):
+            if isinstance(self.data, dict):
+                return key in self.data
+            return hasattr(self.data, key)
+
+    def _normalize_dict(schema, data):
+        result = {}
+        data = DataWrapper(data)
+        for key, _schema in schema.get('properties', {}).iteritems():
+            # set default
+            type_ = _schema.get('type', 'object')
+            if ('default' not in _schema
+                    and key in schema.get('required', []) 
+                    and type_ in required_defaults):
+                _schema['default'] = required_defaults[type_]
+            # get value
+            if data.has(key) or type_ in ('object', 'array'):
+                result[key] = _normalize(_schema, data.get(key))
+            elif 'default' in _schema:
+                result[key] = _schema['default']
+            elif key in schema.get('required', []):
+                errors.append(dict(name='property_missing',
+                                   message='`%s` is required' % name))
+        return result
+
+    def _normalize_list(schema, data):
+        result = []
+        if isinstance(data, (list, tuple)):
+            for item in data:
+                result.append(_normalize(schema.get('items'), item))
+        elif 'default' in schema:
+            result = schema['default']
+        return result
+
+    def _normalize_default(schema, data):
+        return data or schema.get('default')
+
+    def _normalize(schema, data):
+        if not schema:
+            return None
+        funcs = {
+            'object': _normalize_dict,
+            'array': _normalize_list,
+            'default': _normalize_default,
+        }
+        type_ = schema.get('type', 'object')
+        if not type_ in funcs:
+            type_ = 'default'
+
+        return funcs[type_](schema, data)
+
+    return _normalize(schema, data), errors
+        
+
+
+
+
 

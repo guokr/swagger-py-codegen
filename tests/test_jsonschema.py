@@ -204,55 +204,6 @@ def test_filters():
     assert r2['schema']['properties']['code'] == {'type': 'string'}
 
 
-def test_object_to_dict():
-    from swagger_py_codegen.jsonschema import object_to_dict
-
-    class User:
-        def __init__(self):
-            self.id = 123
-            self.name = 'somename'
-            self.password = '****'
-            self.address = object()
-
-        @property
-        def age(self):
-            return 18
-
-    schema = {
-        'type': 'object',
-        'properties': {
-            'id': { 'type': 'integer' },
-            'name': { 'type': 'string' },
-            'gender': { 'type': 'string', 'default': 'unknown' },
-            'address': {
-                'type': 'object',
-                'properties': {
-                    'city': { 'type': 'string', 'default': 'beijing' },
-                    'country': { 'type': 'string', 'default': 'china'}
-                }
-            },
-            'age': { 'type': 'integer' },
-            'roles': {
-                'type': 'array',
-                'items': {
-                    'type': 'string',
-                    'default': 'user',
-                    'enum': ['user', 'admin']
-                }
-            }
-        }
-    }
-
-    user, errors = object_to_dict(schema, User())
-
-    assert not errors
-    assert 'password' not in user
-    assert user['gender'] == 'unknown'
-    assert user['address']['city'] == 'beijing'
-    assert user['age'] == 18
-    assert user['roles'] == ['user']
-
-
 def test_build_default_01():
     from swagger_py_codegen.jsonschema import build_default
 
@@ -283,25 +234,7 @@ def test_build_default_01():
     result = build_default(schema)
     assert result['gender'] == 'unknown'
     assert result['address']['city'] == 'beijing'
-    assert result['roles'][0] == 'user'
-
-
-def test_build_default_02():
-    from swagger_py_codegen.jsonschema import build_default
-
-    schema = {
-        'type': 'array',
-        'items': {
-                'type': 'object',
-                'properties': {
-                    'city': { 'type': 'string', 'default': 'beijing' },
-                    'country': { 'type': 'string', 'default': 'china'}
-                }
-        }
-    }
-    result = build_default(schema)
-    assert result[0]['city'] == 'beijing'
-    assert result[0]['country'] == 'china'
+    assert result['roles'] == []
 
 
 def test_merge_default_01():
@@ -355,4 +288,181 @@ def test_merge_default_01():
         }
     }
     result = merge_default(schema, default)
-    assert result['roles'] == ['user']
+    assert result['roles'] == []
+
+
+def test_merge_default_02():
+    from swagger_py_codegen.jsonschema import merge_default
+
+    schema = {
+        'type': 'array',
+        'items': {
+            'type': 'object',
+            'properties': {
+                'id': {
+                    'type': 'integer'
+                },
+                'name': {
+                    'type': 'string',
+                    'default': 'Tom'
+                }
+            }
+        }
+    }
+
+    default = [{
+        'id': 123,
+    }, {
+        'name': 'Jerry'
+    }]
+
+    results = merge_default(schema, default)
+    assert results[0]['name'] == 'Tom'
+    assert results[1]['name'] == 'Jerry'
+
+
+def test_merge_default_03():
+    from swagger_py_codegen.jsonschema import merge_default
+
+    schema = {
+        'type': 'array',
+        'items': {
+                'type': 'object',
+                'properties': {
+                    'city': { 'type': 'string', 'default': 'beijing' },
+                    'country': { 'type': 'string', 'default': 'china'}
+                }
+        }
+    }
+    result = merge_default(schema, [{}])
+    assert result[0]['city'] == 'beijing'
+    assert result[0]['country'] == 'china'
+
+
+def test_normalize_01():
+    from swagger_py_codegen.jsonschema import normalize
+
+    class User:
+        def __init__(self):
+            self.id = 123
+            self.name = 'somename'
+            self.password = '****'
+            self.address = object()
+
+        @property
+        def age(self):
+            return 18
+
+    schema = {
+        'type': 'object',
+        'properties': {
+            'id': { 'type': 'integer' },
+            'name': { 'type': 'string' },
+            'gender': { 'type': 'string', 'default': 'unknown' },
+            'address': {
+                'type': 'object',
+                'properties': {
+                    'city': { 'type': 'string', 'default': 'beijing' },
+                    'country': { 'type': 'string', 'default': 'china'}
+                }
+            },
+            'age': { 'type': 'integer' },
+            'roles': {
+                'type': 'array',
+                'items': {
+                    'type': 'string',
+                    'default': 'user',
+                    'enum': ['user', 'admin']
+                },
+                'default': ['user']
+            }
+        }
+    }
+
+    user, errors = normalize(schema, User())
+
+    assert not errors
+    assert 'password' not in user
+    assert user['gender'] == 'unknown'
+    assert user['address']['city'] == 'beijing'
+    assert user['age'] == 18
+    assert user['roles'] == ['user']
+
+    schema = {
+        'type': 'array',
+        'items': schema
+    }
+    users, errors = normalize(schema, [User()])
+    user = users.pop()
+    assert not errors
+    assert 'password' not in user
+    assert user['gender'] == 'unknown'
+    assert user['address']['city'] == 'beijing'
+    assert user['age'] == 18
+    assert user['roles'] == ['user']
+
+    del schema['items']['properties']['roles']['default']
+    users, errors = normalize(schema, [User()])
+    user = users.pop()
+    assert user['roles'] == []
+
+    user = User()
+    user.roles = ['admin']
+    results, errors = normalize(schema, [user])
+    result = results.pop()
+    assert result['roles'] == ['admin']
+
+
+def test_normalize_02():
+    from swagger_py_codegen.jsonschema import normalize
+
+    schema = {
+        'type': 'object',
+        'properties': {
+            'id': { 'type': 'integer' },
+            'name': { 'type': 'string' },
+            'gender': { 'type': 'string', 'default': 'unknown' },
+            'address': {
+                'type': 'object',
+                'properties': {
+                    'city': { 'type': 'string', 'default': 'beijing' },
+                    'country': { 'type': 'string', 'default': 'china'}
+                }
+            },
+            'age': { 'type': 'integer' },
+            'roles': {
+                'type': 'array',
+                'items': {
+                    'type': 'string',
+                    'default': 'user',
+                    'enum': ['user', 'admin']
+                }
+            }
+        }
+    }
+    default = {
+        'id': 123,
+        'name': 'bob',
+        'gender': 'male',
+        'address': {
+            'city': 'shenzhen'
+        },
+        'roles': ['admin', 'user']
+    }
+    result, errors = normalize(schema, default)
+    assert result['id'] == 123
+    assert result['name'] == 'bob'
+    assert result['address'] == {'city': 'shenzhen', 'country': 'china'}
+    assert result['roles'] == ['admin', 'user']
+
+    default = {
+        'id': 123,
+        'name': 'bob',
+        'gender': 'male',
+        'address': {
+            'city': 'shenzhen'
+        }
+    }
+    result, errors = normalize(schema, default)
+    assert result['roles'] == []
+

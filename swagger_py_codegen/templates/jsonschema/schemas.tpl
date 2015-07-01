@@ -46,5 +46,5 @@ security = Security()
 
 {{ merge_default }}
 
-{{ object_to_dict }}
+{{ normalize }}
 

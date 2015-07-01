@@ -11,7 +11,7 @@ from flask_restful.utils import unpack
 from jsonschema import Draft4Validator
 
 from .schemas import (
-    validators, filters, scopes, security, merge_default, object_to_dict)
+    validators, filters, scopes, security, merge_default, normalize)
 
 
 class FlaskValidatorAdaptor(object):
@@ -22,7 +22,7 @@ class FlaskValidatorAdaptor(object):
     def type_convert(self, obj):
         if obj is None:
             return None
-        if isinstance(obj, dict) and not isinstance(obj, MultiDict):
+        if isinstance(obj, (dict, list)) and not isinstance(obj, MultiDict):
             return obj
         if isinstance(obj, Headers):
             obj = MultiDict(obj.iteritems())
@@ -102,8 +102,8 @@ def response_filter(view):
             # return resp, code, headers
             abort(500, message='`%d` is not a defined status code.' % code)
 
-        headers, errs_a = object_to_dict(schemas['headers'], headers)
-        resp, errs_b = object_to_dict(schemas['schema'], resp)
+        headers, errs_a = normalize(schemas['headers'], headers)
+        resp, errs_b = normalize(schemas['schema'], resp)
         errors = errs_a + errs_b
         if errors:
             abort(500, message='Expectation Failed', errors=errors)

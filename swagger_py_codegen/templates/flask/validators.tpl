@@ -2,16 +2,25 @@
 
 {% include '_do_not_change.tpl' %}
 
+from datetime import date
 from functools import wraps
-from werkzeug.datastructures import MultiDict, Headers
 
-from flask import request, g, json, Response
+from werkzeug.datastructures import MultiDict, Headers
+from flask import request, g, current_app, json
 from flask_restful import abort
 from flask_restful.utils import unpack
 from jsonschema import Draft4Validator
 
 from .schemas import (
     validators, filters, scopes, security, merge_default, normalize)
+
+
+class JSONEncoder(json.JSONEncoder):
+
+    def default(self, o):
+        if isinstance(o, date):
+            return o.isoformat()
+        return json.JSONEncoder.default(self, o)
 
 
 class FlaskValidatorAdaptor(object):
@@ -79,6 +88,9 @@ def response_filter(view):
     def wrapper(*args, **kwargs):
         resp = view(*args, **kwargs)
 
+        if isinstance(resp, current_app.response_class):
+            return resp
+
         endpoint = request.endpoint.partition('.')[-1]
         method = request.method
         if method == 'HEAD':
@@ -86,28 +98,33 @@ def response_filter(view):
         filter = filters.get((endpoint, method), None)
         if not filter:
             return resp
-        if isinstance(resp, Response):
-            return resp
 
         headers = None
-        code = None
+        status = None
         if isinstance(resp, tuple):
-            resp, code, headers = unpack(resp)
+            resp, status, headers = unpack(resp)
 
         if len(filter) == 1:
-            code = filter.keys()[0]
+            status = filter.keys()[0]
 
-        schemas = filter.get(code)
+        schemas = filter.get(status)
         if not schemas:
-            # return resp, code, headers
-            abort(500, message='`%d` is not a defined status code.' % code)
+            # return resp, status, headers
+            abort(500, message='`%d` is not a defined status code.' % status)
 
-        headers, errs_a = normalize(schemas['headers'], headers)
-        resp, errs_b = normalize(schemas['schema'], resp)
-        errors = errs_a + errs_b
+        resp, errors = normalize(schemas['schema'], resp)
+        if schemas['headers']:
+            headers, header_errors = normalize(
+                {'properties': schemas['headers']}, headers)
+            errors.extend(header_errors)
         if errors:
             abort(500, message='Expectation Failed', errors=errors)
 
-        return resp, code, headers
+        return current_app.response_class(
+            json.dumps(resp, cls=JSONEncoder) + '\n',
+            status=status,
+            headers=headers,
+            mimetype='application/json'
+        )
 
     return wrapper

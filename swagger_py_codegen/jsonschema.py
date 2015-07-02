@@ -165,7 +165,7 @@ def normalize(schema, data, required_defaults=None):
                 result[key] = _schema['default']
             elif key in schema.get('required', []):
                 errors.append(dict(name='property_missing',
-                                   message='`%s` is required' % name))
+                                   message='`%s` is required' % key))
         return result
 
     def _normalize_list(schema, data):

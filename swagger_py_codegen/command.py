@@ -105,6 +105,6 @@ def generate(destination, swagger_doc, force=False, package=None,
         click.secho('%-12s' % status, nl=False)
         click.secho(dest)
 
-        if status != 'skipped':
+        if status != 'skip':
             write(dest, source)
 

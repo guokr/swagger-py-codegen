@@ -22,9 +22,9 @@ class Swagger(object):
     separator = '\0'
 
     def __init__(self, data):
-        import copy
         self.data = data
-        self.odata = copy.deepcopy(data)
+        self.origin_data = {}
+        self.origin_data.update(data)
         self._definitions = []
         self._references_sort()
         self._process_ref()

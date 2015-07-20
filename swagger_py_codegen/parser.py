@@ -23,6 +23,8 @@ class Swagger(object):
 
     def __init__(self, data):
         self.data = data
+        self.origin_data = {}
+        self.origin_data.update(data)
         self._definitions = []
         self._references_sort()
         self._process_ref()

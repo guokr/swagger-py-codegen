@@ -206,7 +206,7 @@ class FlaskGenerator(CodeGenerator):
             except ImportError:
                 import json
             swagger = {}
-            swagger.update(self.swagger.data)
+            swagger.update(self.swagger.odata)
             swagger.pop('host', None)
             swagger.pop('schemes', None)
             yield Specification(dict(swagger=json.dumps(swagger, indent=2)))

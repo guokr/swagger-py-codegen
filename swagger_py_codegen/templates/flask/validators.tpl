@@ -36,18 +36,28 @@ class FlaskValidatorAdaptor(object):
         if isinstance(obj, Headers):
             obj = MultiDict(obj.iteritems())
         result = dict()
+
         convert_funs = {
             'integer': lambda v: int(v[0]),
             'boolean': lambda v: v[0].lower() not in ['n', 'no', 'false', '', '0'],
             'null': lambda v: None,
             'number': lambda v: float(v[0]),
-            'array': lambda v: v,
             'string': lambda v: v[0]
         }
+
+        def convert_array(type_, v):
+            func = convert_funs.get(type_, lambda v: v[0])
+            return [func([i]) for i in v]
+
         for k, values in obj.iterlists():
-            type_ = self.validator.schema['properties'].get(k, {}).get('type')
+            prop = self.validator.schema['properties'].get(k, {})
+            type_ = prop.get('type')
             fun = convert_funs.get(type_, lambda v: v[0])
-            result[k] = fun(values)
+            if type_ == 'array':
+                item_type = prop.get('items', {}).get('type')
+                result[k] = convert_array(item_type, values)
+            else:
+                result[k] = fun(values)
         return result
 
     def validate(self, value):

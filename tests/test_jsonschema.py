@@ -466,3 +466,80 @@ def test_normalize_02():
     result, errors = normalize(schema, default)
     assert result['roles'] == []
 
+
+def test_normalize_03():
+    from swagger_py_codegen.jsonschema import normalize
+
+    schema = {
+        'required': ['id', 'name', 'gender'],
+        'type': 'object',
+        'properties': {
+            'id': { 'type': 'integer' },
+            'name': { 'type': 'string' },
+            'gender': { 'type': 'string', 'default': 'unknown' },
+            'address': {
+                'required': ['city', 'country'],
+                'type': 'object',
+                'properties': {
+                    'city': { 'type': 'string' },
+                    'country': { 'type': 'string'}
+                }
+            },
+            'age': { 'type': 'integer' },
+            'roles': {
+                'type': 'array',
+                'items': {
+                    'type': 'string',
+                    'default': 'user',
+                    'enum': ['user', 'admin']
+                }
+            }
+        }
+    }
+    default = {
+        'id': 123,
+        'name': 'bob',
+        'gender': 'male',
+        'roles': ['admin', 'user']
+    }
+    result, errors = normalize(schema, default)
+    assert errors == []
+    assert result['name'] == 'bob'
+    assert result['address'] == {}
+    assert result['roles'] == ['admin', 'user']
+
+    default = {
+        'id': 123,
+        'name': 'bob',
+        'gender': 'male',
+        'address': {
+            'city': 'shenzhen',
+            'country': 'china'
+        }
+    }
+    result, errors = normalize(schema, default)
+    assert result['address'] == {'city': 'shenzhen', 'country': 'china'}
+    assert result['roles'] == []
+
+    default = {
+        'id': 123,
+        'name': 'bob',
+        'gender': 'male',
+        'address': {
+        }
+    }
+    result, errors = normalize(schema, default)
+    assert errors
+    assert len(errors) == 2
+
+    default = {
+        'id': 123,
+        'name': 'bob',
+        'gender': 'male',
+        'address': {
+            'city': 'beijing'
+        }
+    }
+    result, errors = normalize(schema, default)
+    assert errors
+    assert len(errors) == 1

@@ -148,31 +148,28 @@ def normalize(schema, data, required_defaults=None):
                 return key in self.data
             return hasattr(self.data, key)
 
-    def _normalize_dict(schema, data, **kwargs):
+    def _normalize_dict(schema, data):
         result = {}
-        _data = data
         data = DataWrapper(data)
         for key, _schema in schema.get('properties', {}).iteritems():
             # set default
             type_ = _schema.get('type', 'object')
             if ('default' not in _schema
                     and key in schema.get('required', [])
-                    and type_ in required_defaults
-                    and kwargs.get('is_super_required', True)):
+                    and type_ in required_defaults):
                 _schema['default'] = required_defaults[type_]
 
             # get value
-            if data.has(key) or type_ in ('object', 'array'):
-                result[key] = _normalize(_schema, data.get(key),
-                                         **dict(is_super_required=(key in schema.get('required', []))))
+            if data.has(key):
+                result[key] = _normalize(_schema, data.get(key))
             elif 'default' in _schema:
                 result[key] = _schema['default']
-            elif key in schema.get('required', []) and (_data is not None or kwargs.get('is_super_required', True)):
+            elif key in schema.get('required', []):
                 errors.append(dict(name='property_missing',
                                    message='`%s` is required' % key))
         return result
 
-    def _normalize_list(schema, data, **kwargs):
+    def _normalize_list(schema, data):
         result = []
         if isinstance(data, (list, tuple)):
             for item in data:
@@ -181,11 +178,10 @@ def normalize(schema, data, required_defaults=None):
             result = schema['default']
         return result
 
-    def _normalize_default(schema, data, **kwargs):
+    def _normalize_default(schema, data):
         return data or schema.get('default')
 
-    def _normalize(schema, data, **kwargs):
-        """ is_super_required is used for to identify current schema is required in parent or not"""
+    def _normalize(schema, data):
         if not schema:
             return None
         funcs = {
@@ -197,6 +193,6 @@ def normalize(schema, data, required_defaults=None):
         if not type_ in funcs:
             type_ = 'default'
 
-        return funcs[type_](schema, data, **kwargs)
+        return funcs[type_](schema, data)
 
     return _normalize(schema, data), errors

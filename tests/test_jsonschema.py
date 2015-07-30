@@ -208,6 +208,7 @@ def test_build_default_01():
     from swagger_py_codegen.jsonschema import build_default
 
     schema = {
+        'required': ['id', 'name', 'gender', 'roles'],
         'type': 'object',
         'properties': {
             'id': { 'type': 'integer' },
@@ -216,9 +217,10 @@ def test_build_default_01():
             'address': {
                 'type': 'object',
                 'properties': {
-                    'city': { 'type': 'string', 'default': 'beijing' },
-                    'country': { 'type': 'string', 'default': 'china'}
-                }
+                    'city': { 'type': 'string' },
+                    'country': { 'type': 'string' }
+                },
+                'default': { 'city':'beijing', 'country':'china' }
             },
             'age': { 'type': 'integer' },
             'roles': {
@@ -288,7 +290,7 @@ def test_merge_default_01():
         }
     }
     result = merge_default(schema, default)
-    assert result['roles'] == []
+    assert 'roles' not in result.keys()
 
 
 def test_merge_default_02():
@@ -354,6 +356,7 @@ def test_normalize_01():
             return 18
 
     schema = {
+        'required': ['id', 'name', 'gender', 'roles'],
         'type': 'object',
         'properties': {
             'id': { 'type': 'integer' },
@@ -404,7 +407,7 @@ def test_normalize_01():
     del schema['items']['properties']['roles']['default']
     users, errors = normalize(schema, [User()])
     user = users.pop()
-    assert user['roles'] == []
+    assert 'roles' not in user.keys()
 
     user = User()
     user.roles = ['admin']
@@ -417,6 +420,7 @@ def test_normalize_02():
     from swagger_py_codegen.jsonschema import normalize
 
     schema = {
+        'required': ['id', 'name', 'gender', 'roles'],
         'type': 'object',
         'properties': {
             'id': { 'type': 'integer' },
@@ -464,7 +468,7 @@ def test_normalize_02():
         }
     }
     result, errors = normalize(schema, default)
-    assert result['roles'] == []
+    assert 'roles' not in  result.keys()
 
 
 def test_normalize_03():
@@ -505,7 +509,7 @@ def test_normalize_03():
     result, errors = normalize(schema, default)
     assert errors == []
     assert result['name'] == 'bob'
-    assert result['address'] == {}
+    assert 'address' not in result.keys()
     assert result['roles'] == ['admin', 'user']
 
     default = {
@@ -519,7 +523,6 @@ def test_normalize_03():
     }
     result, errors = normalize(schema, default)
     assert result['address'] == {'city': 'shenzhen', 'country': 'china'}
-    assert result['roles'] == []
 
     default = {
         'id': 123,
@@ -529,8 +532,6 @@ def test_normalize_03():
         }
     }
     result, errors = normalize(schema, default)
-    assert errors
-    assert len(errors) == 2
 
     default = {
         'id': 123,

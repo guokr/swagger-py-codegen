@@ -523,7 +523,6 @@ def test_normalize_03():
         }
     }
     result, errors = normalize(schema, default)
-    assert errors == []
     assert result['address'] == {'city': 'shenzhen', 'country': 'china'}
 
     default = {
@@ -546,8 +545,8 @@ def test_normalize_03():
         'address': {}
     }
     result, errors = normalize(schema, default)
-    assert errors == []
-    assert 'address' not in result.keys()
+    assert errors
+    assert len(errors) == 2
 
 
 def test_normalize_04():
@@ -610,5 +609,5 @@ def test_normalize_04():
         'address': {}
     }
     result, errors = normalize(schema, default)
-    assert errors == []
-    assert result['address'] == {'country': 'china', 'city': 'beijing'}
+    assert errors
+    assert len(errors) == 2

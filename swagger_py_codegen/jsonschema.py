@@ -124,7 +124,7 @@ def build_default(schema):
 
 
 def normalize(schema, data, required_defaults=None):
-    
+
     if required_defaults is None:
         required_defaults = {}
     errors = []
@@ -155,11 +155,12 @@ def normalize(schema, data, required_defaults=None):
             # set default
             type_ = _schema.get('type', 'object')
             if ('default' not in _schema
-                    and key in schema.get('required', []) 
+                    and key in schema.get('required', [])
                     and type_ in required_defaults):
                 _schema['default'] = required_defaults[type_]
+
             # get value
-            if data.has(key) or type_ in ('object', 'array'):
+            if data.has(key):
                 result[key] = _normalize(_schema, data.get(key))
             elif 'default' in _schema:
                 result[key] = _schema['default']
@@ -195,9 +196,3 @@ def normalize(schema, data, required_defaults=None):
         return funcs[type_](schema, data)
 
     return _normalize(schema, data), errors
-        
-
-
-
-
-

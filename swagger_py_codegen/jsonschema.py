@@ -179,7 +179,10 @@ def normalize(schema, data, required_defaults=None):
         return result
 
     def _normalize_default(schema, data):
-        return data or schema.get('default')
+        if data is None:
+            return schema.get('default')
+        else:
+            return data
 
     def _normalize(schema, data):
         if not schema:

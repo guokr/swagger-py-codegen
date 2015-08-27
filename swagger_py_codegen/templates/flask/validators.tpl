@@ -85,7 +85,7 @@ def request_validate(view):
             validator = FlaskValidatorAdaptor(schema)
             result, errors = validator.validate(value)
             if errors:
-                abort(500, message='Unprocessable Entity', errors=errors)
+                abort(400, message='Unprocessable Entity', errors=errors)
             setattr(g, location, result)
         return view(*args, **kwargs)
 

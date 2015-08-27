@@ -62,7 +62,7 @@ class FlaskValidatorAdaptor(object):
 
     def validate(self, value):
         value = self.type_convert(value)
-        errors = list(e.message for e in self.validator.iter_errors(value))
+        errors = list(("/".join(map (lambda x:str(x), e.schema_path)), e.message) for e in self.validator.iter_errors(value))
         return merge_default(self.validator.schema, value), errors
 
 
@@ -85,7 +85,7 @@ def request_validate(view):
             validator = FlaskValidatorAdaptor(schema)
             result, errors = validator.validate(value)
             if errors:
-                abort(422, message='Unprocessable Entity', errors=errors)
+                abort(500, message='Unprocessable Entity', errors=errors)
             setattr(g, location, result)
         return view(*args, **kwargs)
 
@@ -98,8 +98,8 @@ def response_filter(view):
     def wrapper(*args, **kwargs):
         resp = view(*args, **kwargs)
 
-        if isinstance(resp, current_app.response_class):
-            return resp
+        if isinstance(resp[0], current_app.response_class):
+            return resp[0]
 
         endpoint = request.endpoint.partition('.')[-1]
         method = request.method

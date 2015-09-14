@@ -20,7 +20,7 @@ pip install swagger-py-codegen
 Create all:
 
 ```
-swagger-py-codegen --swagger-doc api.yml example-app
+swagger_py_codegen --swagger-doc api.yml example-app
 ```
 
 Command Options:

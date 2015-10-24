@@ -89,6 +89,9 @@ def test_path_to_endpoint():
     }, {
         'path': '/users/{id}/profile',
         'expect': 'users_id_profile'
+    }, {
+        'path': '/users/{id}/hat-size',
+        'expect': 'users_id_hat_size'
     }]
     for case in cases:
         assert _path_to_endpoint(case['path']) == case['expect']

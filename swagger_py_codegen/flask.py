@@ -96,7 +96,7 @@ def _swagger_to_flask_url(url, swagger_path_node):
 
 
 def _path_to_endpoint(swagger_path):
-    return swagger_path.strip('/').replace('/', '_').translate(None, '{}')
+    return swagger_path.strip('/').replace('/', '_').replace('-', '_').translate(None, '{}')
 
 
 def _path_to_resource_name(swagger_path):
@@ -224,4 +224,3 @@ class FlaskGenerator(CodeGenerator):
 
         if self.with_ui:
             yield UIIndex(dict(spec_path='/static/%s/swagger.json' % self.swagger.module_name))
-

@@ -55,7 +55,7 @@ class Template(object):
         self.env = Environment(loader=self.loader)
 
     def add_searchpath(self, path):
-        self.loader.searchpath.append(path)
+        self.loader.searchpath.insert(0, path)
 
     def render(self, template_name, **kwargs):
         template = self.env.get_template(template_name)

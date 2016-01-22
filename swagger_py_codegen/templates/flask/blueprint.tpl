@@ -10,7 +10,7 @@ from .validators import security
 def current_scopes():
     return {{ scopes_supported }}
 
-bp = Blueprint('{{ blueprint }}', __name__)
+bp = Blueprint('{{ blueprint }}', __name__, static_folder='static')
 api = restful.Api(bp, catch_all_404s=True)
 
 for route in routes:

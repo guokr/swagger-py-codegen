@@ -171,7 +171,7 @@ def normalize(schema, data, required_defaults=None):
 
     def _normalize_list(schema, data):
         result = []
-        if isinstance(data, (list, tuple)):
+        if hasattr(data, '__iter__') and not isinstance(data, dict):
             for item in data:
                 result.append(_normalize(schema.get('items'), item))
         elif 'default' in schema:

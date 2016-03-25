@@ -728,3 +728,6 @@ def test_normalize_06():
         'huntingSkill': 'lazy'
     }
     result, errors = normalize(schema, default)
+    assert errors
+    assert len(errors) == 2
+    assert result['huntingSkill'] == 'lazy'

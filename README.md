@@ -35,7 +35,7 @@ Command Options:
 
 ## Examples:
 
-Generate example-app from [apis.yml](https://github.com/guokr/swagger-py-codegen/blob/master/api.yml "Title"):  
+Generate example-app from [apis.yml](https://github.com/guokr/swagger-py-codegen/blob/master/api.yml "Title"):
 
     $tree
 	.
@@ -72,9 +72,11 @@ Start example-app:
     $ cd demo
     $ python __init__.py
 
-And generate example-app-ui from apis.yml with ui:   
+And generate example-app-ui from apis.yml with ui:
 
-    $ swagger_py_codegen -s  api.yml  example-app-ui -p demo-ui --ui
+    $ swagger_py_codegen -s  api.yml  example-app-ui -p demo-ui --ui --spec
+
+Then you can visit http://127.0.0.1:5000/static/swagger-ui/index.html in a browser.
 
 ## Authors
 --------

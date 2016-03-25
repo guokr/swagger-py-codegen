@@ -611,3 +611,123 @@ def test_normalize_04():
     result, errors = normalize(schema, default)
     assert errors
     assert len(errors) == 2
+
+
+def test_normalize_05():
+    from swagger_py_codegen.jsonschema import normalize
+    class Pet(object):
+        def __init__(self, name, petType):
+            self.name = name
+            self.petType = petType
+
+    class Cat(Pet):
+        def __init__(self, huntingSkill, **kwargs):
+            if kwargs:
+                super(Cat, self).__init__(**kwargs)
+            self.huntingSkill = huntingSkill
+
+    schema = {
+        'description': 'A representation of a cat',
+        'allOf': [
+            {
+                'discriminator': 'petType',
+                'required': ['name', 'petType'],
+                'type': 'object',
+                'properties': {
+                    'petType': {'type': 'string'},
+                    'name': {'type': 'string'}
+                }
+            },
+            {
+                'required': ['huntingSkill'],
+                'type': 'object',
+                'properties': {
+                    'huntingSkill': {
+                        'default': 'lazy',
+                        'enum': ['clueless', 'lazy', 'adventurous', 'aggressive'],
+                        'type': 'string',
+                        'description': 'The measured skill for hunting'
+                    }
+                }
+            }
+        ]
+    }
+
+    result, errors = normalize(schema, Cat(huntingSkill='lazy', name='bob', petType='cat'))
+    assert errors == []
+    assert result['name'] == 'bob'
+    assert result['petType'] == 'cat'
+    assert result['huntingSkill'] == 'lazy'
+
+    result, errors = normalize(schema, Cat(huntingSkill='lazy'))
+    assert result['huntingSkill'] == 'lazy'
+    assert errors
+    assert len(errors) == 2
+
+
+def test_normalize_06():
+    from swagger_py_codegen.jsonschema import normalize
+
+    schema = {
+        'description': 'A representation of a cat',
+        'allOf': [
+            {
+                'discriminator': 'petType',
+                'required': ['name', 'petType'],
+                'type': 'object',
+                'properties': {
+                    'petType': {'type': 'string'},
+                    'name': {'type': 'string'}
+                }
+            },
+            {
+                'required': ['huntingSkill'],
+                'type': 'object',
+                'properties': {
+                    'huntingSkill': {
+                        'default': 'lazy',
+                        'enum': ['clueless', 'lazy', 'adventurous', 'aggressive'],
+                        'type': 'string',
+                        'description': 'The measured skill for hunting'
+                    }
+                }
+            }
+        ]
+    }
+    default = {
+        'name': 'bob',
+        'petType': 'cat',
+        'huntingSkill': 'lazy'
+    }
+    result, errors = normalize(schema, default)
+    assert errors == []
+    assert result['name'] == 'bob'
+    assert result['petType'] == 'cat'
+    assert result['huntingSkill'] == 'lazy'
+
+    default = {
+        'name': 'bob',
+        'petType': 'cat',
+    }
+    result, errors = normalize(schema, default)
+    assert errors == []
+    assert result['name'] == 'bob'
+    assert result['petType'] == 'cat'
+    assert result['huntingSkill'] == 'lazy'
+
+    default = {
+        'name': 'bob',
+        'huntingSkill': 'lazy'
+    }
+    result, errors = normalize(schema, default)
+    assert errors
+    assert len(errors) == 1
+    assert result['huntingSkill'] == 'lazy'
+
+    default = {
+        'huntingSkill': 'lazy'
+    }
+    result, errors = normalize(schema, default)
+    assert errors
+    assert len(errors) == 2
+    assert result['huntingSkill'] == 'lazy'

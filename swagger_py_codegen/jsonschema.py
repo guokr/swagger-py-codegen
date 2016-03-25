@@ -150,7 +150,8 @@ def normalize(schema, data, required_defaults=None):
 
     def _normalize_dict(schema, data):
         result = {}
-        data = DataWrapper(data)
+        if not isinstance(data, DataWrapper):
+            data = DataWrapper(data)
         for key, _schema in schema.get('properties', {}).iteritems():
             # set default
             type_ = _schema.get('type', 'object')
@@ -167,6 +168,12 @@ def normalize(schema, data, required_defaults=None):
             elif key in schema.get('required', []):
                 errors.append(dict(name='property_missing',
                                    message='`%s` is required' % key))
+
+        for _schema in schema.get('allOf', []):
+            rs_component = _normalize(_schema, data)
+            rs_component.update(result)
+            result = rs_component
+
         return result
 
     def _normalize_list(schema, data):

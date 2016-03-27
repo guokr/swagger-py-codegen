@@ -152,6 +152,7 @@ def normalize(schema, data, required_defaults=None):
         result = {}
         if not isinstance(data, DataWrapper):
             data = DataWrapper(data)
+
         for key, _schema in schema.get('properties', {}).iteritems():
             # set default
             type_ = _schema.get('type', 'object')
@@ -173,6 +174,9 @@ def normalize(schema, data, required_defaults=None):
             rs_component = _normalize(_schema, data)
             rs_component.update(result)
             result = rs_component
+
+        for _ in schema.get('additionalProperties', {}):
+            result.update(data.data)
 
         return result
 

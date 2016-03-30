@@ -148,10 +148,16 @@ def normalize(schema, data, required_defaults=None):
                 return key in self.data
             return hasattr(self.data, key)
 
+        def keys(self):
+            if isinstance(self.data, dict):
+                return self.data.keys()
+            return vars(self.data).keys()
+
     def _normalize_dict(schema, data):
         result = {}
         if not isinstance(data, DataWrapper):
             data = DataWrapper(data)
+
         for key, _schema in schema.get('properties', {}).iteritems():
             # set default
             type_ = _schema.get('type', 'object')
@@ -173,6 +179,12 @@ def normalize(schema, data, required_defaults=None):
             rs_component = _normalize(_schema, data)
             rs_component.update(result)
             result = rs_component
+
+        additional_properties_schema = schema.get('additionalProperties', False)
+        if additional_properties_schema:
+            aproperties_set = set(data.keys()) - set(result.keys())
+            for pro in aproperties_set:
+                result[pro] = _normalize(additional_properties_schema, data.get(pro))
 
         return result
 

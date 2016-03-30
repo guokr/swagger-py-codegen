@@ -731,3 +731,105 @@ def test_normalize_06():
     assert errors
     assert len(errors) == 2
     assert result['huntingSkill'] == 'lazy'
+
+
+def test_normalize_07():
+    from swagger_py_codegen.jsonschema import normalize
+
+    class A(object):
+        def __init__(self, visible_property):
+            self.visible_property = visible_property
+
+    schema = {
+        'additionalProperties': {'type': 'string'},
+        'discriminator': 'response info',
+        'type': 'object',
+        'properties': {
+            'visible_property': {
+                'type': 'string',
+                'description': 'This is a property that you can see'
+            }
+        }
+    }
+
+    data = A(visible_property='the property you see')
+    data.additional_property1 = 'test1'
+    data.additional_property2 = 'test2'
+    result, errors = normalize(schema, data)
+    assert errors == []
+    assert result['visible_property'] == 'the property you see'
+    assert result['additional_property1'] == 'test1'
+    assert result['additional_property2'] == 'test2'
+
+    default = {
+        'visible_property': 'default visible property',
+        'additional_property01': 'test01',
+        'additional_property02': 'test02',
+    }
+    result, errors = normalize(schema, default)
+    assert errors == []
+    assert result['visible_property'] == 'default visible property'
+    assert result['additional_property01'] == 'test01'
+    assert result['additional_property02'] == 'test02'
+
+
+def test_normalize_08():
+    from swagger_py_codegen.jsonschema import normalize
+
+    class A(object):
+        def __init__(self, visible_property):
+            self.visible_property = visible_property
+
+    class B(object):
+        def __init__(self, subobject):
+            self.subobject = subobject
+
+    schema = {
+        'additionalProperties': {
+            'required': ['subobject'],
+            'properties': {
+                'subobject': {
+                    'type': 'string',
+                    'description': 'Some string value'
+                }
+            }
+        },
+        'discriminator': 'response info',
+        'type': 'object',
+        'properties': {
+            'visible_property': {
+                'type': 'string',
+                'description': 'This is a property that you can see'
+            }
+        }
+    }
+
+    data = A(visible_property='default property')
+    data.additional_property1 = B('test1')
+    data.additional_property2 = B('test2')
+    result, errors = normalize(schema, data)
+    assert errors == []
+    assert result['visible_property'] == 'default property'
+    assert result['additional_property1'] == {'subobject': 'test1'}
+    assert result['additional_property2'] == {'subobject': 'test2'}
+
+    default = {
+        'visible_property': 'default visible property',
+        'additional_property01': {'subobject': 'test01'},
+        'additional_property02': {},
+    }
+    result, errors = normalize(schema, default)
+    assert len(errors) == 1
+    assert result['visible_property'] == 'default visible property'
+    assert result['additional_property01'] == {'subobject': 'test01'}
+
+    default = {
+        'visible_property': 'default visible property',
+        'additional_property01': {'subobject': 'test01'},
+        'additional_property02': {'subobject': 'test02'},
+    }
+    result, errors = normalize(schema, default)
+    assert errors == []
+    assert result['visible_property'] == 'default visible property'
+    assert result['additional_property01'] == {'subobject': 'test01'}
+    assert result['additional_property02'] == {'subobject': 'test02'}

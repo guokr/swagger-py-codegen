@@ -77,7 +77,7 @@ definitions:
   Admin:
     properties:
       user:
-        $ref: '#definitions/User'
+        $ref: '#/definitions/User'
   Error:
     properties:
       code:

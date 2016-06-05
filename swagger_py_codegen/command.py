@@ -3,6 +3,7 @@ try:
     import simplejson as json
 except ImportError:
     import json
+from multiprocessing import Pool
 from os import makedirs
 from os.path import join, exists, dirname
 
@@ -69,9 +70,11 @@ def _copy_ui_dir(ui_dest, ui_src):
 @click.option('--ui',
               default=False, is_flag=True,
               help='Generate swagger ui.')
+@click.option('-j', '--jobs',
+              default=4, help='Parallel jobs for processing.')
 def generate(destination, swagger_doc, force=False, package=None,
-             template_dir=None, specification=False, ui=False):
-
+             template_dir=None, specification=False, ui=False, jobs=4):
+    pool = Pool(processes=int(jobs))
     package = package or destination.replace('-', '_')
     data = spec_load(swagger_doc)
     swagger = Swagger(data)

@@ -2,7 +2,6 @@
 import string
 import copy
 import dpath.util
-from repoze.lru import lru_cache
 import sys
 
 def schema_var_name(path):
@@ -28,6 +27,7 @@ class Swagger(object):
         self.origin_data = copy.deepcopy(data)
         self._definitions = []
         self._references_sort()
+        self._get_cached = {}
         if pool:
             process_references(self, pool)
         else:
@@ -85,9 +85,11 @@ class Swagger(object):
                                       self.separator):
             yield (self, tuple(p.split(self.separator)), d)
 
-    @lru_cache(1000)
     def get(self, path):
-        return dpath.util.get(self.data, list(path))
+        key = ''.join(path)
+        if key not in self._get_cached:
+            self._get_cached[key] = dpath.util.get(self.data, list(path))
+        return self._get_cached[key]
 
     def set(self, path, data):
         dpath.util.set(self.data, list(path), data)

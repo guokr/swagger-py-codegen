@@ -23,7 +23,7 @@ setup(
             'swagger_py_codegen=swagger_py_codegen:generate'
         ]
     },
-    install_requires=['PyYAML', 'click', 'jinja2', 'dpath', 'repoze.lru'],
+    install_requires=['PyYAML', 'click', 'jinja2', 'dpath'],
     tests_require=['pytest'],
     classifiers=[
         'Development Status :: 3 - Alpha',

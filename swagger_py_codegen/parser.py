@@ -23,13 +23,15 @@ class Swagger(object):
 
     separator = '\0'
 
-    def __init__(self, data, pool):
+    def __init__(self, data, pool=None):
         self.data = data
         self.origin_data = copy.deepcopy(data)
         self._definitions = []
         self._references_sort()
-        self._process_ref()
-        process_references(self, pool)
+        if pool:
+            process_references(self, pool)
+        else:
+            self._process_ref()
 
     def _process_ref(self):
 

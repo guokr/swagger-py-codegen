@@ -138,10 +138,7 @@ def normalize(schema, data, required_defaults=None):
         def get(self, key, default=None):
             if isinstance(self.data, dict):
                 return self.data.get(key, default)
-            if hasattr(self.data, key):
-                return getattr(self.data, key)
-            else:
-                return default
+            return getattr(self.data, key, default)
 
         def has(self, key):
             if isinstance(self.data, dict):
@@ -167,8 +164,9 @@ def normalize(schema, data, required_defaults=None):
                 _schema['default'] = required_defaults[type_]
 
             # get value
-            if data.has(key):
-                result[key] = _normalize(_schema, data.get(key))
+            value = data.get(key)
+            if value:
+                result[key] = _normalize(_schema, value)
             elif 'default' in _schema:
                 result[key] = _schema['default']
             elif key in schema.get('required', []):

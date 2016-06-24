@@ -165,7 +165,7 @@ def normalize(schema, data, required_defaults=None):
 
             # get value
             value = data.get(key)
-            if value:
+            if value is not None:
                 result[key] = _normalize(_schema, value)
             elif 'default' in _schema:
                 result[key] = _schema['default']

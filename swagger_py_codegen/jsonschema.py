@@ -138,10 +138,7 @@ def normalize(schema, data, required_defaults=None):
         def get(self, key, default=None):
             if isinstance(self.data, dict):
                 return self.data.get(key, default)
-            if hasattr(self.data, key):
-                return getattr(self.data, key)
-            else:
-                return default
+            return getattr(self.data, key, default)
 
         def has(self, key):
             if isinstance(self.data, dict):

@@ -1,6 +1,6 @@
 # Flask RESTful Application Code Generator
 
-[![Build Status](https://travis-ci.org/guokr/swagger-py-codegen.svg)](https://travis-ci.org/guokr/swagger-py-codegen)
+[![Build Status][travis-image]][travis-url] [![PyPi Version][pypi-image]][pypi-url]
 
 ## Overview
 
@@ -61,13 +61,13 @@ Generate example-app from [apis.yml](https://github.com/guokr/swagger-py-codegen
 	   |     |__ schemas.py
 	   |     |__ validators.py
 	   |__ requirements.txt
-	
-Install example-app requirements: 
+
+Install example-app requirements:
 
     $ cd example-app
     $ pip install -r requirements.txt
 
-Start example-app: 
+Start example-app:
 
     $ cd demo
     $ python __init__.py
@@ -85,4 +85,10 @@ See the [AUTHORS](https://github.com/guokr/swagger-py-codegen/blob/master/AUTHOR
 
 ## License
 --------
-MIT 
+MIT
+
+[travis-url]: https://travis-ci.org/guokr/swagger-py-codegen
+[travis-image]: https://travis-ci.org/guokr/swagger-py-codegen.svg
+
+[pypi-url]: https://pypi.python.org/pypi/swagger-py-codegen/
+[pypi-image]: https://img.shields.io/pypi/v/swagger-py-codegen.svg?style=flat-square

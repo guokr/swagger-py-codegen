@@ -150,6 +150,20 @@ def normalize(schema, data, required_defaults=None):
                 return self.data.keys()
             return vars(self.data).keys()
 
+        def get_check(self, key, default=None):
+            if isinstance(self.data, dict):
+                value = self.data.get(key, default)
+                has_key = key in self.data
+            else:
+                try:
+                    value = getattr(self.data, key)
+                except AttributeError:
+                    value = default
+                    has_key = False
+                else:
+                    has_key = True
+            return value, has_key
+
     def _normalize_dict(schema, data):
         result = {}
         if not isinstance(data, DataWrapper):
@@ -164,8 +178,8 @@ def normalize(schema, data, required_defaults=None):
                 _schema['default'] = required_defaults[type_]
 
             # get value
-            value = data.get(key)
-            if value is not None:
+            value, has_key = data.get_check(key)
+            if has_key:
                 result[key] = _normalize(_schema, value)
             elif 'default' in _schema:
                 result[key] = _schema['default']

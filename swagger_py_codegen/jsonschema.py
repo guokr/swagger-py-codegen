@@ -182,11 +182,12 @@ def normalize(schema, data, required_defaults=None):
                 result[key] = _normalize(_schema, value)
             elif 'default' in _schema:
                 result[key] = _schema['default']
-            elif key in schema.get('required', []) and type_ in required_defaults:
-                result[key] = required_defaults[type_]
-            else:
-                errors.append(dict(name='property_missing',
-                                   message='`%s` is required' % key))
+            elif key in schema.get('required', []):
+                if type_ in required_defaults:
+                    result[key] = required_defaults[type_]
+                else:
+                    errors.append(dict(name='property_missing',
+                                       message='`%s` is required' % key))
 
         for _schema in schema.get('allOf', []):
             rs_component = _normalize(_schema, data)

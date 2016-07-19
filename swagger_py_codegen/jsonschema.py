@@ -106,7 +106,7 @@ class SchemaGenerator(CodeGenerator):
         yield Schema(build_data(self.swagger))
 
 
-def merge_default(schema, value):
+def merge_default(schema, value, get_first=True):
     # TODO: more types support
     type_defaults = {
         'integer': 9573,
@@ -116,7 +116,10 @@ def merge_default(schema, value):
         'boolean': False
     }
 
-    return normalize(schema, value, type_defaults)[0]
+    results = normalize(schema, value, type_defaults)
+    if get_first:
+        return results[0]
+    return results
 
 
 def build_default(schema):

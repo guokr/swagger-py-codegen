@@ -63,7 +63,7 @@ class FlaskValidatorAdaptor(object):
     def validate(self, value):
         value = self.type_convert(value)
         errors = list(e.message for e in self.validator.iter_errors(value))
-        return merge_default(self.validator.schema, value), errors
+        return normalize(self.validator.schema, value)[0], errors
 
 
 def request_validate(view):
@@ -122,10 +122,10 @@ def response_filter(view):
             # return resp, status, headers
             abort(500, message='`%d` is not a defined status code.' % status)
 
-        resp, errors = normalize(schemas['schema'], resp)
+        resp, errors = merge_default(schemas['schema'], resp, get_first=False)
         if schemas['headers']:
-            headers, header_errors = normalize(
-                {'properties': schemas['headers']}, headers)
+            headers, header_errors = merge_default(
+                {'properties': schemas['headers']}, headers, get_first=False)
             errors.extend(header_errors)
         if errors:
             abort(500, message='Expectation Failed', errors=errors)

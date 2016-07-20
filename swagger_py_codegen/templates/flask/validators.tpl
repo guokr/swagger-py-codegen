@@ -122,10 +122,10 @@ def response_filter(view):
             # return resp, status, headers
             abort(500, message='`%d` is not a defined status code.' % status)
 
-        resp, errors = merge_default(schemas['schema'], resp, get_first=False)
+        resp, errors = normalize(schemas['schema'], resp)
         if schemas['headers']:
-            headers, header_errors = merge_default(
-                {'properties': schemas['headers']}, headers, get_first=False)
+            headers, header_errors = normalize(
+                {'properties': schemas['headers']}, headers)
             errors.extend(header_errors)
         if errors:
             abort(500, message='Expectation Failed', errors=errors)

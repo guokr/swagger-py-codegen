@@ -63,7 +63,7 @@ class FlaskValidatorAdaptor(object):
     def validate(self, value):
         value = self.type_convert(value)
         errors = list(e.message for e in self.validator.iter_errors(value))
-        return merge_default(self.validator.schema, value), errors
+        return normalize(self.validator.schema, value)[0], errors
 
 
 def request_validate(view):

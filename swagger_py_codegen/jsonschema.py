@@ -106,7 +106,7 @@ class SchemaGenerator(CodeGenerator):
         yield Schema(build_data(self.swagger))
 
 
-def merge_default(schema, value):
+def merge_default(schema, value, get_first=True):
     # TODO: more types support
     type_defaults = {
         'integer': 9573,
@@ -116,7 +116,10 @@ def merge_default(schema, value):
         'boolean': False
     }
 
-    return normalize(schema, value, type_defaults)[0]
+    results = normalize(schema, value, type_defaults)
+    if get_first:
+        return results[0]
+    return results
 
 
 def build_default(schema):
@@ -172,10 +175,6 @@ def normalize(schema, data, required_defaults=None):
         for key, _schema in schema.get('properties', {}).iteritems():
             # set default
             type_ = _schema.get('type', 'object')
-            if ('default' not in _schema
-                    and key in schema.get('required', [])
-                    and type_ in required_defaults):
-                _schema['default'] = required_defaults[type_]
 
             # get value
             value, has_key = data.get_check(key)
@@ -184,8 +183,11 @@ def normalize(schema, data, required_defaults=None):
             elif 'default' in _schema:
                 result[key] = _schema['default']
             elif key in schema.get('required', []):
-                errors.append(dict(name='property_missing',
-                                   message='`%s` is required' % key))
+                if type_ in required_defaults:
+                    result[key] = required_defaults[type_]
+                else:
+                    errors.append(dict(name='property_missing',
+                                       message='`%s` is required' % key))
 
         for _schema in schema.get('allOf', []):
             rs_component = _normalize(_schema, data)

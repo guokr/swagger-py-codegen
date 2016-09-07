@@ -188,6 +188,8 @@ def normalize(schema, data, required_defaults=None):
                 else:
                     errors.append(dict(name='property_missing',
                                        message='`%s` is required' % key))
+            else:
+                result[key] = None
 
         for _schema in schema.get('allOf', []):
             rs_component = _normalize(_schema, data)

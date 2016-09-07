@@ -290,7 +290,7 @@ def test_merge_default_01():
         }
     }
     result = merge_default(schema, default)
-    assert 'roles' not in result.keys()
+    assert result['roles'] is None
 
 
 def test_merge_default_02():
@@ -511,7 +511,7 @@ def test_normalize_03():
     result, errors = normalize(schema, default)
     assert errors == []
     assert result['name'] == 'bob'
-    assert 'address' not in result.keys()
+    assert result['address'] is None
 
     default = {
         'id': 123,

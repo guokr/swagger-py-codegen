@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+
 from swagger_py_codegen.parser import Swagger
 from swagger_py_codegen.flask import (
     _swagger_to_flask_url,
@@ -135,6 +136,7 @@ def test_process_data():
     swagger = Swagger(data)
     generator = FlaskGenerator(swagger)
     schemas, routes, view1, view2 = list(generator.generate())[:4]
+    view1, view2 = sorted([view1, view2], key=lambda x: x.data['name'])
     assert ('posts_post_id', 'GET') in schemas.data['validators']
     assert schemas.data['validators'][('posts_post_id', 'GET')]['args']['properties']['page']['type'] == 'integer'
     assert view1.data['url'] == '/posts/<int:post_id>'

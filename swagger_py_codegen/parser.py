@@ -8,7 +8,7 @@ from six.moves import map
 
 
 def schema_var_name(path):
-    return ''.join(map(string.capitalize, path))
+    return ''.join(map(str.capitalize, path))
 
 
 class RefNode(dict):

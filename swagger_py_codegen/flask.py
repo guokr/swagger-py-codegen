@@ -96,13 +96,21 @@ def _swagger_to_flask_url(url, swagger_path_node):
 
     return url, params
 
+if six.PY3:
+    def _remove_characters(text, deletechars):
+        return text.translate({ord(x): None for x in deletechars})
+else:
+    def _remove_characters(text, deletechars):
+        return text.translate(None, deletechars)
 
 def _path_to_endpoint(swagger_path):
-    return swagger_path.strip('/').replace('/', '_').replace('-', '_').translate(None, '{}')
+    return _remove_characters(
+        swagger_path.strip('/').replace('/', '_').replace('-', '_'),
+        '{}')
 
 
 def _path_to_resource_name(swagger_path):
-    return swagger_path.title().translate(None, '{}/_-')
+    return _remove_characters(swagger_path.title(), '{}/_-')
 
 
 def _location(swagger_location):

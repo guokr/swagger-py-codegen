@@ -1,8 +1,10 @@
+from __future__ import absolute_import
 import re
 from collections import OrderedDict
 
 from .base import Code, CodeGenerator
 from .jsonschema import Schema, SchemaGenerator, build_default
+import six
 
 SUPPORT_METHODS = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head']
 
@@ -130,18 +132,18 @@ class FlaskGenerator(CodeGenerator):
         # use flask endpoint to replace default validator's key,
         # example: `('some_path_param', 'method')`
         validators = OrderedDict()
-        for k, v in schemas.data['validators'].iteritems():
-            locations = {_location(loc): val for loc, val in v.iteritems()}
+        for k, v in six.iteritems(schemas.data['validators']):
+            locations = {_location(loc): val for loc, val in six.iteritems(v)}
             validators[(_path_to_endpoint(k[0]), k[1])] = locations
 
         # filters
         filters = OrderedDict()
-        for k, v in schemas.data['filters'].iteritems():
+        for k, v in six.iteritems(schemas.data['filters']):
             filters[(_path_to_endpoint(k[0]), k[1])] = v
 
         # scopes
         scopes = OrderedDict()
-        for k, v in schemas.data['scopes'].iteritems():
+        for k, v in six.iteritems(schemas.data['scopes']):
             scopes[(_path_to_endpoint(k[0]), k[1])] = v
 
         schemas.data['validators'] = validators
@@ -169,9 +171,9 @@ class FlaskGenerator(CodeGenerator):
                 methods[method] = {}
                 validator = self.validators.get((endpoint, method.upper()))
                 if validator:
-                    methods[method]['requests'] = validator.keys()
+                    methods[method]['requests'] = list(validator.keys())
 
-                for status, res_data in data[method].get('responses', {}).iteritems():
+                for status, res_data in six.iteritems(data[method].get('responses', {})):
                     if isinstance(status, int) or status.isdigit():
                         example = res_data.get('schema', {}).get('application/json')
                         if not example:

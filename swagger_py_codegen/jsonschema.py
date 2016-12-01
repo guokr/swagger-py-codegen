@@ -1,8 +1,10 @@
+from __future__ import absolute_import
 from collections import OrderedDict
 from inspect import getsource
 
 from .base import Code, CodeGenerator
 from .parser import schema_var_name
+import six
 
 
 class Schema(Code):
@@ -74,7 +76,7 @@ def build_data(swagger):
             responses = data.get('responses')
             if responses:
                 filter = {}
-                for status, res_data in responses.iteritems():
+                for status, res_data in six.iteritems(responses):
                     if isinstance(status, int) or status.isdigit():
                         filter[int(status)] = dict(
                             headers=res_data.get('headers'),
@@ -84,7 +86,7 @@ def build_data(swagger):
 
             # scopes
             for security in data.get('security', []):
-                scopes[(endpoint, method)] = security.values().pop()
+                scopes[(endpoint, method)] = list(security.values()).pop()
                 break
 
     schemas = OrderedDict([(schema_var_name(path), swagger.get(path)) for path in swagger.definitions])
@@ -150,8 +152,8 @@ def normalize(schema, data, required_defaults=None):
 
         def keys(self):
             if isinstance(self.data, dict):
-                return self.data.keys()
-            return vars(self.data).keys()
+                return list(self.data.keys())
+            return list(vars(self.data).keys())
 
         def get_check(self, key, default=None):
             if isinstance(self.data, dict):
@@ -172,7 +174,7 @@ def normalize(schema, data, required_defaults=None):
         if not isinstance(data, DataWrapper):
             data = DataWrapper(data)
 
-        for key, _schema in schema.get('properties', {}).iteritems():
+        for key, _schema in six.iteritems(schema.get('properties', {})):
             # set default
             type_ = _schema.get('type', 'object')
 

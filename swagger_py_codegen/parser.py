@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
 import string
 import copy
 import dpath.util
+import six
+from six.moves import map
 
 
 def schema_var_name(path):
@@ -51,7 +54,7 @@ class Swagger(object):
                 ref = ref.lstrip('#/').split('/')
                 ref = tuple(ref)
 
-                if schema in definition_refs.keys():
+                if schema in list(definition_refs.keys()):
                     definition_refs[schema].add(ref)
                 else:
                     definition_refs[schema] = set([ref])
@@ -61,13 +64,13 @@ class Swagger(object):
 
         definition_refs = get_definition_refs()
         while definition_refs:
-            ready = {definition for definition, refs in definition_refs.iteritems() if not refs}
+            ready = {definition for definition, refs in six.iteritems(definition_refs) if not refs}
             if not ready:
                 msg = '$ref circular references found!\n'
                 raise ValueError(msg)
             for definition in ready:
                 del definition_refs[definition]
-            for refs in definition_refs.itervalues():
+            for refs in six.itervalues(definition_refs):
                 refs.difference_update(ready)
 
             self._definitions += ready
@@ -89,7 +92,7 @@ class Swagger(object):
     @property
     def scopes_supported(self):
         for _, data in self.search(['securityDefinitions', '*', 'scopes']):
-            return data.keys()
+            return list(data.keys())
         return []
 
     @property

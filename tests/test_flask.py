@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from swagger_py_codegen.parser import Swagger
 from swagger_py_codegen.flask import (
     _swagger_to_flask_url,

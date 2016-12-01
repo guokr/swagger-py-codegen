@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from swagger_py_codegen.parser import Swagger
 from swagger_py_codegen.jsonschema import build_data
 
@@ -66,7 +67,7 @@ def test_schema_ref_01():
     swagger = Swagger(data)
     data = build_data(swagger)
     assert len(data['schemas']) == 2
-    assert data['schemas'].keys()[0] == 'DefinitionsUser'
+    assert list(data['schemas'].keys())[0] == 'DefinitionsUser'
 
 
 def test_validators():
@@ -290,7 +291,7 @@ def test_merge_default_01():
         }
     }
     result = merge_default(schema, default)
-    assert 'roles' not in result.keys()
+    assert 'roles' not in list(result.keys())
 
 
 def test_merge_default_02():
@@ -407,7 +408,7 @@ def test_normalize_01():
     del schema['items']['properties']['roles']['default']
     users, errors = normalize(schema, [User()])
     user = users.pop()
-    assert 'roles' not in user.keys()
+    assert 'roles' not in list(user.keys())
     assert errors
 
     user = User()
@@ -469,7 +470,7 @@ def test_normalize_02():
         }
     }
     result, errors = normalize(schema, default)
-    assert 'roles' not in result.keys()
+    assert 'roles' not in list(result.keys())
     assert errors
 
 
@@ -511,7 +512,7 @@ def test_normalize_03():
     result, errors = normalize(schema, default)
     assert errors == []
     assert result['name'] == 'bob'
-    assert 'address' not in result.keys()
+    assert 'address' not in list(result.keys())
 
     default = {
         'id': 123,

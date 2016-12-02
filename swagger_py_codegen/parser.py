@@ -2,7 +2,7 @@
 import string
 import copy
 import dpath.util
-
+import sys
 
 def schema_var_name(path):
     return ''.join(map(string.capitalize, path))
@@ -22,12 +22,16 @@ class Swagger(object):
 
     separator = '\0'
 
-    def __init__(self, data):
+    def __init__(self, data, pool=None):
         self.data = data
         self.origin_data = copy.deepcopy(data)
         self._definitions = []
         self._references_sort()
-        self._process_ref()
+        self._get_cached = {}
+        if pool:
+            process_references(self, pool)
+        else:
+            self._process_ref()
 
     def _process_ref(self):
 
@@ -76,8 +80,16 @@ class Swagger(object):
         for p, d in dpath.util.search(self.data, list(path), True, self.separator):
             yield tuple(p.split(self.separator)), d
 
+    def pickle_search(self, path):
+        for p, d in dpath.util.search(self.data, list(path), True,
+                                      self.separator):
+            yield (self, tuple(p.split(self.separator)), d)
+
     def get(self, path):
-        return dpath.util.get(self.data, list(path))
+        key = ''.join(path)
+        if key not in self._get_cached:
+            self._get_cached[key] = dpath.util.get(self.data, list(path))
+        return self._get_cached[key]
 
     def set(self, path, data):
         dpath.util.set(self.data, list(path), data)
@@ -99,3 +111,43 @@ class Swagger(object):
     @property
     def base_path(self):
         return self.data.get('basePath', '/v1')
+
+
+def process_input_func(data_to_process):
+    (swagger, path, ref) = data_to_process
+    sys.stdout.write('.')
+    sys.stdout.flush()
+    ref = ref.lstrip('#/').split('/')
+    ref = tuple(ref)
+    data = swagger.get(ref)
+    path = path[:-1]
+    return (path, RefNode(data, ref))
+
+
+def process_references(swagger, pool):
+    """
+    Processed references in swagger data
+    :param swagger:
+    :return:
+    """
+    data_set = pool.map(process_input_func,
+                        swagger.pickle_search(['**', '$ref']))
+    for path, node in data_set:
+        sys.stdout.write('.')
+        sys.stdout.flush()
+        next_ref = swagger.data
+        for pn in path[:-1]:
+            if isinstance(next_ref, list):
+                next_ref = next_ref[int(pn)]
+            elif isinstance(next_ref, dict):
+                if pn in next_ref:
+                    next_ref = next_ref[pn]
+                elif int(pn) in next_ref:
+                    next_ref = next_ref[int(pn)]
+        if isinstance(next_ref, dict):
+            idx = path[-1]
+            next_ref[idx] = node
+        elif isinstance(next_ref, list):
+            idx = int(path[-1])
+            next_ref[idx] = node
+    print " "

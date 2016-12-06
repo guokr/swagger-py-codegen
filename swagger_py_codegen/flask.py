@@ -173,7 +173,8 @@ class FlaskGenerator(CodeGenerator):
 
                 for status, res_data in data[method].get('responses', {}).iteritems():
                     if isinstance(status, int) or status.isdigit():
-                        example = res_data.get('schema', {}).get('application/json')
+                        example = res_data.get('examples', {}).get('application/json')
+
                         if not example:
                             example = build_default(res_data.get('schema'))
                         response = example, int(status), build_default(res_data.get('headers'))

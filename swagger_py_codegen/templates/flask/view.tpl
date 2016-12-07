@@ -9,7 +9,7 @@ from .. import schemas
 
 class {{ name }}(Resource):
 
-    {%- for method, ins in methods.iteritems() %}
+    {%- for method, ins in methods.items() %}
 
     def {{ method.lower() }}(self{{ params.__len__() and ', ' or '' }}{{ params | join(', ') }}):
         {%- for request in ins.requests %}

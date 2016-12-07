@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
 {% include '_do_not_change.tpl' %}
+from __future__ import absolute_import
 
 from datetime import date
 from functools import wraps
+
+import six
 
 from werkzeug.datastructures import MultiDict, Headers
 from flask import request, g, current_app, json
@@ -34,7 +37,7 @@ class FlaskValidatorAdaptor(object):
         if isinstance(obj, (dict, list)) and not isinstance(obj, MultiDict):
             return obj
         if isinstance(obj, Headers):
-            obj = MultiDict(obj.iteritems())
+            obj = MultiDict(six.iteritems(obj))
         result = dict()
 
         convert_funs = {
@@ -80,7 +83,7 @@ def request_validate(view):
         if method == 'HEAD':
             method = 'GET'
         locations = validators.get((endpoint, method), {})
-        for location, schema in locations.iteritems():
+        for location, schema in six.iteritems(locations):
             value = getattr(request, location, MultiDict())
             validator = FlaskValidatorAdaptor(schema)
             result, errors = validator.validate(value)

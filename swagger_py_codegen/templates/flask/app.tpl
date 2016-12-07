@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
 from flask import Flask
 
-import {{ blueprint }}
+from . import {{ blueprint }}
 
 
 def create_app():

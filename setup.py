@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import re
 import ast
 from setuptools import setup
@@ -23,11 +24,12 @@ setup(
             'swagger_py_codegen=swagger_py_codegen:generate'
         ]
     },
-    install_requires=['PyYAML', 'click', 'jinja2', 'dpath'],
+    install_requires=['PyYAML', 'click', 'jinja2', 'dpath', 'six'],
     tests_require=['pytest'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
     ],
 )

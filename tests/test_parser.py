@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import pytest
 from swagger_py_codegen.parser import Swagger
 

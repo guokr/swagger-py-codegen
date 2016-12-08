@@ -130,6 +130,8 @@ def build_default(schema):
 
 def normalize(schema, data, required_defaults=None):
 
+    import six
+
     if required_defaults is None:
         required_defaults = {}
     errors = []

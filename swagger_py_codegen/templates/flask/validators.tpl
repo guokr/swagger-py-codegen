@@ -52,7 +52,7 @@ class FlaskValidatorAdaptor(object):
             func = convert_funs.get(type_, lambda v: v[0])
             return [func([i]) for i in v]
 
-        for k, values in obj.iterlists():
+        for k, values in obj.lists():
             prop = self.validator.schema['properties'].get(k, {})
             type_ = prop.get('type')
             fun = convert_funs.get(type_, lambda v: v[0])
@@ -118,7 +118,10 @@ def response_filter(view):
             resp, status, headers = unpack(resp)
 
         if len(filter) == 1:
-            status = filter.keys()[0]
+            if six.PY3:
+                status = list(filter.keys())[0]
+            else:
+                status = filter.keys()[0]
 
         schemas = filter.get(status)
         if not schemas:

@@ -7,3 +7,5 @@ dist/
 *.egg-info
 *.egg
 .idea
+*~
+*.pyc

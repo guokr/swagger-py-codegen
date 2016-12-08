@@ -2,4 +2,4 @@ from __future__ import absolute_import
 
 from .command import generate
 
-__version__ = '0.2.00'
+__version__ = '0.2.1'

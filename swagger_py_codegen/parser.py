@@ -153,4 +153,3 @@ def process_references(swagger, pool):
         elif isinstance(next_ref, list):
             idx = int(path[-1])
             next_ref[idx] = node
-    print " "

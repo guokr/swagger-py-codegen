@@ -11,6 +11,7 @@ from os.path import join, exists, dirname
 import yaml
 import click
 
+from ._version import __version__
 from .flask import FlaskGenerator
 from .parser import Swagger
 from .base import Template
@@ -55,6 +56,13 @@ def _copy_ui_dir(ui_dest, ui_src):
     return status
 
 
+def print_version(ctx, param, value):
+    if not value or ctx.resilient_parsing:
+        return
+    click.echo('current version: %s' % __version__)
+    ctx.exit()
+
+
 @click.command()
 @click.argument('destination', required=True)
 @click.option('-s', '--swagger', '--swagger-doc',
@@ -73,6 +81,9 @@ def _copy_ui_dir(ui_dest, ui_src):
               help='Generate swagger ui.')
 @click.option('-j', '--jobs',
               default=4, help='Parallel jobs for processing.')
+@click.option('--version', is_flag=True, callback=print_version,
+              expose_value=False, is_eager=True,
+              help='Show current version.')
 def generate(destination, swagger_doc, force=False, package=None,
              template_dir=None, specification=False, ui=False, jobs=4):
     pool = Pool(processes=int(jobs))

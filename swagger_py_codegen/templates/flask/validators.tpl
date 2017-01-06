@@ -31,6 +31,12 @@ class FlaskValidatorAdaptor(object):
     def __init__(self, schema):
         self.validator = Draft4Validator(schema)
 
+    def validate_number(self, type_, value):
+        try:
+            return type_(value)
+        except ValueError:
+            return value
+
     def type_convert(self, obj):
         if obj is None:
             return None
@@ -41,10 +47,10 @@ class FlaskValidatorAdaptor(object):
         result = dict()
 
         convert_funs = {
-            'integer': lambda v: int(v[0]),
+            'integer': lambda v: self.validate_number(int, v[0]),
             'boolean': lambda v: v[0].lower() not in ['n', 'no', 'false', '', '0'],
             'null': lambda v: None,
-            'number': lambda v: float(v[0]),
+            'number': lambda v: self.validate_number(float, v[0]),
             'string': lambda v: v[0]
         }
 

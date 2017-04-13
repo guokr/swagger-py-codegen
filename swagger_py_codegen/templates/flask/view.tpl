@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, print_function
+
 from flask import request, g
 
 from . import Resource
@@ -7,11 +9,11 @@ from .. import schemas
 
 class {{ name }}(Resource):
 
-    {%- for method, ins in methods.iteritems() %}
+    {%- for method, ins in methods.items() %}
 
     def {{ method.lower() }}(self{{ params.__len__() and ', ' or '' }}{{ params | join(', ') }}):
         {%- for request in ins.requests %}
-        print g.{{ request }}
+        print(g.{{ request }})
         {%- endfor %}
 
         {% if 'response' in  ins -%}

@@ -4,24 +4,24 @@
 
 {% include '_do_not_change.tpl' %}
 
-{% for name, value in schemas.iteritems() %}
+{% for name, value in schemas.items() %}
 {{ name }} = {{ value }}
 {%- endfor %}
 
 validators = {
-{%- for name, value in validators.iteritems() %}
+{%- for name, value in validators.items() %}
     {{ name }}: {{ value }},
 {%- endfor %}
 }
 
 filters = {
-{%- for name, value in filters.iteritems() %}
+{%- for name, value in filters.items() %}
     {{ name }}: {{ value }},
 {%- endfor %}
 }
 
 scopes = {
-{%- for name, value in scopes.iteritems() %}
+{%- for name, value in scopes.items() %}
     {{ name }}: {{ value }},
 {%- endfor %}
 }

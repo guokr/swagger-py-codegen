@@ -1,10 +1,11 @@
+from __future__ import absolute_import
 import re
 import ast
 from setuptools import setup
 
 _version_re = re.compile(r'__version__\s+=\s+(.*)')
 
-with open('swagger_py_codegen/__init__.py', 'rb') as f:
+with open('swagger_py_codegen/_version.py', 'rb') as f:
     version = str(ast.literal_eval(_version_re.search(
         f.read().decode('utf-8')).group(1)))
 
@@ -23,11 +24,12 @@ setup(
             'swagger_py_codegen=swagger_py_codegen:generate'
         ]
     },
-    install_requires=['PyYAML', 'click', 'jinja2', 'dpath'],
+    install_requires=['PyYAML', 'click', 'jinja2', 'dpath', 'six'],
     tests_require=['pytest'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
     ],
 )

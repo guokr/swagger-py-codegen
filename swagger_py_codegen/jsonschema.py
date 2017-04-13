@@ -1,8 +1,10 @@
+from __future__ import absolute_import
 from collections import OrderedDict
 from inspect import getsource
 
 from .base import Code, CodeGenerator
 from .parser import schema_var_name
+import six
 
 
 class Schema(Code):
@@ -74,7 +76,7 @@ def build_data(swagger):
             responses = data.get('responses')
             if responses:
                 filter = {}
-                for status, res_data in responses.iteritems():
+                for status, res_data in six.iteritems(responses):
                     if isinstance(status, int) or status.isdigit():
                         filter[int(status)] = dict(
                             headers=res_data.get('headers'),
@@ -84,7 +86,7 @@ def build_data(swagger):
 
             # scopes
             for security in data.get('security', []):
-                scopes[(endpoint, method)] = security.values().pop()
+                scopes[(endpoint, method)] = list(security.values()).pop()
                 break
 
     schemas = OrderedDict([(schema_var_name(path), swagger.get(path)) for path in swagger.definitions])
@@ -106,7 +108,7 @@ class SchemaGenerator(CodeGenerator):
         yield Schema(build_data(self.swagger))
 
 
-def merge_default(schema, value):
+def merge_default(schema, value, get_first=True):
     # TODO: more types support
     type_defaults = {
         'integer': 9573,
@@ -116,7 +118,10 @@ def merge_default(schema, value):
         'boolean': False
     }
 
-    return normalize(schema, value, type_defaults)[0]
+    results = normalize(schema, value, type_defaults)
+    if get_first:
+        return results[0]
+    return results
 
 
 def build_default(schema):
@@ -124,6 +129,8 @@ def build_default(schema):
 
 
 def normalize(schema, data, required_defaults=None):
+
+    import six
 
     if required_defaults is None:
         required_defaults = {}
@@ -147,8 +154,8 @@ def normalize(schema, data, required_defaults=None):
 
         def keys(self):
             if isinstance(self.data, dict):
-                return self.data.keys()
-            return vars(self.data).keys()
+                return list(self.data.keys())
+            return list(vars(self.data).keys())
 
         def get_check(self, key, default=None):
             if isinstance(self.data, dict):
@@ -169,13 +176,9 @@ def normalize(schema, data, required_defaults=None):
         if not isinstance(data, DataWrapper):
             data = DataWrapper(data)
 
-        for key, _schema in schema.get('properties', {}).iteritems():
+        for key, _schema in six.iteritems(schema.get('properties', {})):
             # set default
             type_ = _schema.get('type', 'object')
-            if ('default' not in _schema
-                    and key in schema.get('required', [])
-                    and type_ in required_defaults):
-                _schema['default'] = required_defaults[type_]
 
             # get value
             value, has_key = data.get_check(key)
@@ -184,8 +187,11 @@ def normalize(schema, data, required_defaults=None):
             elif 'default' in _schema:
                 result[key] = _schema['default']
             elif key in schema.get('required', []):
-                errors.append(dict(name='property_missing',
-                                   message='`%s` is required' % key))
+                if type_ in required_defaults:
+                    result[key] = required_defaults[type_]
+                else:
+                    errors.append(dict(name='property_missing',
+                                       message='`%s` is required' % key))
 
         for _schema in schema.get('allOf', []):
             rs_component = _normalize(_schema, data)

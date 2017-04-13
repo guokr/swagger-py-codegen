@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
 {% include '_do_not_change.tpl' %}
+from __future__ import absolute_import
 
 from datetime import date
 from functools import wraps
+
+import six
 
 from werkzeug.datastructures import MultiDict, Headers
 from flask import request, g, current_app, json
@@ -28,20 +31,26 @@ class FlaskValidatorAdaptor(object):
     def __init__(self, schema):
         self.validator = Draft4Validator(schema)
 
+    def validate_number(self, type_, value):
+        try:
+            return type_(value)
+        except ValueError:
+            return value
+
     def type_convert(self, obj):
         if obj is None:
             return None
         if isinstance(obj, (dict, list)) and not isinstance(obj, MultiDict):
             return obj
         if isinstance(obj, Headers):
-            obj = MultiDict(obj.iteritems())
+            obj = MultiDict(six.iteritems(obj))
         result = dict()
 
         convert_funs = {
-            'integer': lambda v: int(v[0]),
+            'integer': lambda v: self.validate_number(int, v[0]),
             'boolean': lambda v: v[0].lower() not in ['n', 'no', 'false', '', '0'],
             'null': lambda v: None,
-            'number': lambda v: float(v[0]),
+            'number': lambda v: self.validate_number(float, v[0]),
             'string': lambda v: v[0]
         }
 
@@ -49,7 +58,7 @@ class FlaskValidatorAdaptor(object):
             func = convert_funs.get(type_, lambda v: v[0])
             return [func([i]) for i in v]
 
-        for k, values in obj.iterlists():
+        for k, values in obj.lists():
             prop = self.validator.schema['properties'].get(k, {})
             type_ = prop.get('type')
             fun = convert_funs.get(type_, lambda v: v[0])
@@ -63,7 +72,7 @@ class FlaskValidatorAdaptor(object):
     def validate(self, value):
         value = self.type_convert(value)
         errors = list(e.message for e in self.validator.iter_errors(value))
-        return merge_default(self.validator.schema, value), errors
+        return normalize(self.validator.schema, value)[0], errors
 
 
 def request_validate(view):
@@ -80,7 +89,7 @@ def request_validate(view):
         if method == 'HEAD':
             method = 'GET'
         locations = validators.get((endpoint, method), {})
-        for location, schema in locations.iteritems():
+        for location, schema in six.iteritems(locations):
             value = getattr(request, location, MultiDict())
             validator = FlaskValidatorAdaptor(schema)
             result, errors = validator.validate(value)
@@ -115,7 +124,10 @@ def response_filter(view):
             resp, status, headers = unpack(resp)
 
         if len(filter) == 1:
-            status = filter.keys()[0]
+            if six.PY3:
+                status = list(filter.keys())[0]
+            else:
+                status = filter.keys()[0]
 
         schemas = filter.get(status)
         if not schemas:

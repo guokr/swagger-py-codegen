@@ -91,6 +91,8 @@ def request_validate(view):
         locations = validators.get((endpoint, method), {})
         for location, schema in six.iteritems(locations):
             value = getattr(request, location, MultiDict())
+            if value is None:
+                value = MultiDict()
             validator = FlaskValidatorAdaptor(schema)
             result, errors = validator.validate(value)
             if errors:

@@ -39,6 +39,8 @@ class FlaskValidatorAdaptor(object):
 
     def type_convert(self, obj):
         if obj is None:
+		    if self.validator.schema:
+			  return {}
             return None
         if isinstance(obj, (dict, list)) and not isinstance(obj, MultiDict):
             return obj

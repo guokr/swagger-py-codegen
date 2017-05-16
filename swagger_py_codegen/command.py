@@ -13,6 +13,7 @@ import click
 
 from ._version import __version__
 from .flask import FlaskGenerator
+from .tornado import TornadoGenerator
 from .parser import Swagger
 from .base import Template
 
@@ -81,16 +82,22 @@ def print_version(ctx, param, value):
               help='Generate swagger ui.')
 @click.option('-j', '--jobs',
               default=4, help='Parallel jobs for processing.')
+@click.option('-tlp', '--templates',
+              default='flask', help='Parallel jobs for processing.')
 @click.option('--version', is_flag=True, callback=print_version,
               expose_value=False, is_eager=True,
               help='Show current version.')
 def generate(destination, swagger_doc, force=False, package=None,
-             template_dir=None, specification=False, ui=False, jobs=4):
+             template_dir=None, templates='flask',
+             specification=False, ui=False, jobs=4):
     pool = Pool(processes=int(jobs))
     package = package or destination.replace('-', '_')
     data = spec_load(swagger_doc)
     swagger = Swagger(data, pool)
-    generator = FlaskGenerator(swagger)
+    if templates == 'tornado':
+        generator = TornadoGenerator(swagger)
+    else:
+        generator = FlaskGenerator(swagger)
     generator.with_spec = specification
     generator.with_ui = ui
     template = Template()

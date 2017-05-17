@@ -88,14 +88,14 @@ def _swagger_to_tornado_url(url, swagger_path_node):
     }
     node = swagger_path_node
     params = re.findall(r'\{([^\}]+?)\}', url)
-    url = re.sub(r'{(.*?)}', '<\\1>', url)
+    url = re.sub(r'{(.*?)}', '<<\\1>>', url)
 
     def _type(parameters):
         for p in parameters:
             if p.get('in') != 'path':
                 continue
 
-            yield '<%s>' % p['name'], '(?P<%s>[^/]+?)' % p['name']
+            yield '<<%s>>' % p['name'], '(?P<%s>[^/]+?)' % p['name']
 
     for old, new in _type(node.get('parameters', [])):
         url = url.replace(old, new)

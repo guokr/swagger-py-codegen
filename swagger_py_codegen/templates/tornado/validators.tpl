@@ -132,7 +132,7 @@ def response_filter(obj, resp):
                 reason=json.dumps(errors))
     obj.set_status(status)
     obj.set_headers(headers)
-    obj.write(resp)
+    obj.write(json.dumps(resp))
 
 
 def validate_filter(view):

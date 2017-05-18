@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
-
+import json
 import importlib
 import tornado.web
 
@@ -11,24 +11,25 @@ def load_tornado_settings(*modules):
     kwargs = {}
     mods = []
     config = Config()
+    config.update(**settings)
+    try:
+        setting_mod = importlib.import_module('my_settings')
+        if hasattr(setting_mod, 'load_settings'):
+            getattr(setting_mod, 'load_uris')(config, **kwargs)
+    except ImportError:
+        pass
 
     for module in modules:
         try:
-            mods.append(importlib.import_module('%s.settings' % module))
+            mods.append(importlib.import_module('%s.routes' % module))
         except ImportError, err:
             raise ImportError(
-                "Could not import settings '%s' (Is it on sys.path?): %s" % (
+                "Could not import routers '%s' (Is it on sys.path?): %s" % (
                     module, err))
 
-    for module in modules:
-        try:
-            mods.append(importlib.import_module('%s.my_settings' % module))
-        except ImportError:
-            pass
-
     for mod in mods:
-        if hasattr(mod, 'load_settings'):
-            getattr(mod, 'load_settings')(config, **kwargs)
+        if hasattr(mod, 'load_uris'):
+            getattr(mod, 'load_uris')(config, **kwargs)
 
     return config
 
@@ -52,6 +53,23 @@ class RequestHandler(tornado.web.RequestHandler):
             return
         for k, v in items:
             self.set_header(k, v)
+
+    def write_error(self, status_code, **kwargs):
+        """Override to implement custom error pages.
+
+        ``write_error`` may call `write`, `render`, `set_header`, etc
+        to produce output as usual.
+
+        If this error was caused by an uncaught exception (including
+        HTTPError), an ``exc_info`` triple will be available as
+        ``kwargs["exc_info"]``.  Note that this exception may not be
+        the "current" exception for purposes of methods like
+        ``sys.exc_info()`` or ``traceback.format_exc``.
+        """
+        self.finish(json.dumps({
+            "code": status_code,
+            "message": self._reason,
+        }))
 
 class Config(object):
     def __getitem__(self, item):
@@ -81,3 +99,6 @@ class Config(object):
 
     URIS = []
     ROUTES = []
+    DEBUG = True
+    PORT = 8000
+    WORKER = 1

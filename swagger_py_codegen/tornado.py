@@ -37,12 +37,6 @@ class Validator(Code):
     override = True
 
 
-class Settings(Code):
-
-    template = 'tornado/settings.tpl'
-    dest_template = '%(package)s/%(module)s/settings.py'
-
-
 class Api(Code):
 
     template = 'tornado/api.tpl'
@@ -70,7 +64,7 @@ class Requirements(Code):
 class Core(Code):
 
     template = 'tornado/core.tpl'
-    dest_template = 'core/__init__.py'
+    dest_template = '%(package)s/core/__init__.py'
 
 
 class UIIndex(Code):
@@ -219,7 +213,7 @@ class TornadoGenerator(CodeGenerator):
 
     def _process(self):
         views = self._process_data()
-        yield Router(dict(views=views))
+        yield Router(dict(views=views, blueprint=self.swagger.module_name))
         for view in views:
             yield View(view, dist_env=dict(view=view['endpoint']))
         if self.with_spec:
@@ -238,8 +232,6 @@ class TornadoGenerator(CodeGenerator):
         yield Api()
 
         yield Core()
-
-        yield Settings(dict(blueprint=self.swagger.module_name))
 
         yield Blueprint()
 

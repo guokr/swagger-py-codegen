@@ -21,20 +21,12 @@ def load_tornado_settings(*modules):
         pass
 
     for module in modules:
-        if six.PY3:
-            try:
-                mods.append(importlib.import_module('%s.routes' % module))
-            except ImportError as err:
-                raise ImportError(
-                    "Could not import routers '%s' (Is it on sys.path?): %s" % (
-                        module, err))
-        else:
-            try:
-                mods.append(importlib.import_module('%s.routes' % module))
-            except ImportError ,err:
-                raise ImportError(
-                    "Could not import routers '%s' (Is it on sys.path?): %s" % (
-                        module, err))
+        try:
+            mods.append(importlib.import_module('%s.routes' % module))
+        except ImportError:
+            raise ImportError(
+                "Could not import routers '%s' (Is it on sys.path?)" % (
+                    module))
 
     for mod in mods:
         if hasattr(mod, 'load_uris'):

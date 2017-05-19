@@ -70,86 +70,86 @@ class ValidatorAdaptor(object):
         return normalize(self.validator.schema, value)[0], errors
 
 def request_validate(obj):
-    request = obj.request
-    endpoint = obj.endpoint
-    user_info = obj.current_user
-    if (endpoint, request.method) in scopes and not set(
-            scopes[(endpoint, request.method)]
-    ).issubset(set(user_info.scopes)):
-        raise tornado.web.HTTPError(403)
+    def _request_validate(view):
+        @wraps(view)
+        def wrapper(*args, **kwargs):
+            request = obj.request
+            endpoint = obj.endpoint
+            user_info = obj.current_user
+            if (endpoint, request.method) in scopes and not set(
+                    scopes[(endpoint, request.method)]
+            ).issubset(set(user_info.scopes)):
+                raise tornado.web.HTTPError(403)
 
-    method = request.method
-    if method == 'HEAD':
-        method = 'GET'
-    locations = validators.get((endpoint, method), {})
-    for location, schema in six.iteritems(locations):
-        if location == 'json':
-            value = getattr(request, 'body', MultiDict())
-        elif location == 'args':
-            value = getattr(request, 'query_arguments', MultiDict())
-            for k,v in value.iteritems():
-                if isinstance(v, list) and len(v) == 1:
-                    value[k] = v[0]
-            value = MultiDict(value)
-        else:
-            value = getattr(request, location, MultiDict())
-        validator = ValidatorAdaptor(schema)
-        result, reasons = validator.validate(value)
-        if reasons:
-            raise tornado.web.HTTPError(422, message='Unprocessable Entity',
-                                        reason=json.dumps(reasons))
-        setattr(obj, location, result)
-
-
-def response_filter(obj, resp):
-    request = obj.request
-    endpoint = obj.endpoint
-    method = request.method
-    if method == 'HEAD':
-        method = 'GET'
-    headers = None
-    status = None
-    if isinstance(resp, tuple):
-        resp, status, headers = unpack(resp)
-    filter = filters.get((endpoint, method), None)
-    if filter:
-        if len(filter) == 1:
-            if six.PY3:
-                status = list(filter.keys())[0]
-            else:
-                status = filter.keys()[0]
-
-        schemas = filter.get(status)
-        if not schemas:
-            # return resp, status, headers
-            raise tornado.web.HTTPError(
-                500, message='`%d` is not a defined status code.' % status)
-
-        resp, errors = normalize(schemas['schema'], resp)
-        if schemas['headers']:
-            headers, header_errors = normalize(
-                {'properties': schemas['headers']}, headers)
-            errors.extend(header_errors)
-        if errors:
-            raise tornado.web.HTTPError(
-                500, message='Expectation Failed',
-                reason=json.dumps(errors))
-    obj.set_status(status)
-    obj.set_headers(headers)
-    obj.write(json.dumps(resp))
+            method = request.method
+            if method == 'HEAD':
+                method = 'GET'
+            locations = validators.get((endpoint, method), {})
+            for location, schema in six.iteritems(locations):
+                if location == 'json':
+                    value = getattr(request, 'body', MultiDict())
+                elif location == 'args':
+                    value = getattr(request, 'query_arguments', MultiDict())
+                    for k,v in six.iteritems(value):
+                        if isinstance(v, list) and len(v) == 1:
+                            value[k] = v[0]
+                    value = MultiDict(value)
+                else:
+                    value = getattr(request, location, MultiDict())
+                validator = ValidatorAdaptor(schema)
+                result, reasons = validator.validate(value)
+                if reasons:
+                    raise tornado.web.HTTPError(422, message='Unprocessable Entity',
+                                                reason=json.dumps(reasons))
+                setattr(obj, location, result)
+            return view(*args, **kwargs)
+        return wrapper
+    return _request_validate
 
 
-def validate_filter(view):
+def response_filter(obj):
+    def _response_filter(view):
+        @wraps(view)
+        def wrapper(*args, **kwargs):
+            resp = view(*args, **kwargs)
+            request = obj.request
+            endpoint = obj.endpoint
+            method = request.method
+            if method == 'HEAD':
+                method = 'GET'
+            headers = None
+            status = None
+            if isinstance(resp, tuple):
+                resp, status, headers = unpack(resp)
+            filter = filters.get((endpoint, method), None)
+            if filter:
+                if len(filter) == 1:
+                    if six.PY3:
+                        status = list(filter.keys())[0]
+                    else:
+                        status = filter.keys()[0]
 
-    @wraps(view)
-    def wrapper(*args, **kwargs):
-        self = view.im_self
-        request_validate(self)
-        before_request(self)
-        resp = view(*args, **kwargs)
-        after_request(self)
-        response_filter(self, resp)
-    return wrapper
+                schemas = filter.get(status)
+                if not schemas:
+                    # return resp, status, headers
+                    raise tornado.web.HTTPError(
+                        500, message='`%d` is not a defined status code.' % status)
+
+                resp, errors = normalize(schemas['schema'], resp)
+                if schemas['headers']:
+                    headers, header_errors = normalize(
+                        {'properties': schemas['headers']}, headers)
+                    errors.extend(header_errors)
+                if errors:
+                    raise tornado.web.HTTPError(
+                        500, message='Expectation Failed',
+                        reason=json.dumps(errors))
+            obj.set_status(status)
+            obj.set_headers(headers)
+            obj.write(json.dumps(resp))
+            return
+        return wrapper
+    return _response_filter
 
 
 def unpack(value):

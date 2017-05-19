@@ -233,7 +233,7 @@ class TornadoGenerator(CodeGenerator):
 
         yield Core()
 
-        yield Blueprint()
+        yield Blueprint(dict(scopes_supported=self.swagger.scopes_supported))
 
         yield App(dict(blueprint=self.swagger.module_name,
                        base_path=self.swagger.base_path))

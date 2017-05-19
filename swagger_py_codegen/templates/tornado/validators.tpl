@@ -29,8 +29,12 @@ class ValidatorAdaptor(object):
     def type_convert(self, obj):
         if obj is None or not obj:
             return None
-        if isinstance(obj, (str, unicode, basestring)):
-            obj = MultiDict(json.loads(obj))
+        if six.PY3:
+            if isinstance(obj, str):
+                obj = MultiDict(json.loads(obj))
+        else:
+            if isinstance(obj, (str, unicode, basestring)):
+                obj = MultiDict(json.loads(obj))
         if isinstance(obj, (dict, list)) and not isinstance(obj, MultiDict):
             return obj
         if isinstance(obj, HTTPHeaders):

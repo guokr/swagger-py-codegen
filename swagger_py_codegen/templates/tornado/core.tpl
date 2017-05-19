@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
-import json
+
+import six
 import importlib
 import tornado.web
 
@@ -20,12 +21,20 @@ def load_tornado_settings(*modules):
         pass
 
     for module in modules:
-        try:
-            mods.append(importlib.import_module('%s.routes' % module))
-        except ImportError, err:
-            raise ImportError(
-                "Could not import routers '%s' (Is it on sys.path?): %s" % (
-                    module, err))
+        if six.PY3:
+            try:
+                mods.append(importlib.import_module('%s.routes' % module))
+            except ImportError as err:
+                raise ImportError(
+                    "Could not import routers '%s' (Is it on sys.path?): %s" % (
+                        module, err))
+        else:
+            try:
+                mods.append(importlib.import_module('%s.routes' % module))
+            except ImportError ,err:
+                raise ImportError(
+                    "Could not import routers '%s' (Is it on sys.path?): %s" % (
+                        module, err))
 
     for mod in mods:
         if hasattr(mod, 'load_uris'):
@@ -66,10 +75,10 @@ class RequestHandler(tornado.web.RequestHandler):
         the "current" exception for purposes of methods like
         ``sys.exc_info()`` or ``traceback.format_exc``.
         """
-        self.finish(json.dumps({
+        self.finish({
             "code": status_code,
             "message": self._reason,
-        }))
+        })
 
 class Config(object):
     def __getitem__(self, item):

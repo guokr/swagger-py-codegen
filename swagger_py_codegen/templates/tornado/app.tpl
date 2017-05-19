@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-import json
-
 import tornado.httpserver
 import tornado.ioloop
 import tornado.web
@@ -31,10 +29,10 @@ class RestfulErrorHandler(tornado.web.ErrorHandler):
         the "current" exception for purposes of methods like
         ``sys.exc_info()`` or ``traceback.format_exc``.
         """
-        self.finish(json.dumps({
+        self.finish({
             "code": status_code,
             "message": self._reason,
-        }))
+        })
 
 
 def main():

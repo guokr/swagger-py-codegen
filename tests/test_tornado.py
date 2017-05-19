@@ -38,7 +38,7 @@ def test_swagger_to_tornado_url():
                 }
             },
             'expect': (
-                '/users/<int:id>',
+                '/users/(?P<id>[^/]+?)',
                 ['id']
             )
         },
@@ -67,7 +67,7 @@ def test_swagger_to_tornado_url():
                 }]
             },
             'expect': (
-                '/goods/categories/<int:category>/price-large-than/<float:price>/order-by/<order>',
+                '/goods/categories/(?P<category>[^/]+?)/price-large-than/(?P<price>[^/]+?)/order-by/(?P<order>[^/]+?)',
                 ['category', 'price', 'order']
             )
         },
@@ -75,7 +75,7 @@ def test_swagger_to_tornado_url():
             'url': '/products/{product_id}',
             'data': {},
             'expect': (
-                '/products/<product_id>',
+                '/products/(?P<product_id>[^/]+?)',
                 ['product_id']
             )
         }

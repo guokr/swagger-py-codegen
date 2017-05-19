@@ -11,7 +11,6 @@ import six
 from functools import wraps
 from jsonschema import Draft4Validator
 
-from . import before_request, after_request
 from .schemas import validators, scopes, normalize, filters
 
 

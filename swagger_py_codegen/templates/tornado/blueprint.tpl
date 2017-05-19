@@ -28,11 +28,3 @@ class UserInfo(object):
                 # TODO: test
                 self._account = None
         return self._account
-
-
-def before_request(obj):
-    pass
-
-
-def after_request(obj):
-    pass

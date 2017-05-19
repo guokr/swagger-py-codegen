@@ -45,7 +45,7 @@ class RequestHandler(tornado.web.RequestHandler):
         assert meth is not None, 'Unimplemented method %r' % request.method
 
         for decorator in self.on_initialize_decorators:
-            meth = decorator(meth)
+            meth = decorator(self)(meth)
 
         setattr(self, self.request.method.lower(), meth)
 

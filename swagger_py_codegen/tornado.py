@@ -227,13 +227,13 @@ class TornadoGenerator(CodeGenerator):
             swagger.pop('schemes', None)
             yield Specification(dict(swagger=json.dumps(swagger, indent=2)))
 
-        yield Validator(dict(scopes_supported=self.swagger.scopes_supported))
+        yield Validator()
 
         yield Api()
 
         yield Core()
 
-        yield Blueprint()
+        yield Blueprint(dict(scopes_supported=self.swagger.scopes_supported))
 
         yield App(dict(blueprint=self.swagger.module_name,
                        base_path=self.swagger.base_path))

@@ -101,5 +101,5 @@ class Config(object):
     URIS = []
     ROUTES = []
     DEBUG = True
-    PORT = 8000
+    PORT = 5000
     WORKER = 1

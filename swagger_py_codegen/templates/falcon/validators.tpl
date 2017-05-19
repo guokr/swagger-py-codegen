@@ -3,6 +3,7 @@
 {% include '_do_not_change.tpl' %}
 from __future__ import absolute_import
 
+import json
 from datetime import date
 from functools import wraps
 
@@ -10,13 +11,24 @@ import six
 import falcon
 
 from werkzeug.datastructures import MultiDict, Headers
-from flask import request, g, current_app, json
-from flask_restful import abort
-from flask_restful.utils import unpack
 from jsonschema import Draft4Validator
 
 from .schemas import (
     validators, filters, scopes, security, merge_default, normalize)
+
+
+if six.PY3:
+    def _remove_characters(text, deletechars):
+        return text.translate({ord(x): None for x in deletechars})
+else:
+    def _remove_characters(text, deletechars):
+        return text.translate(None, deletechars)
+
+
+def _path_to_endpoint(path):
+    return _remove_characters(
+        path.strip('/').replace('/', '_').replace('-', '_'),
+        '{}')
 
 
 class JSONEncoder(json.JSONEncoder):
@@ -72,84 +84,83 @@ class FlaskValidatorAdaptor(object):
 
     def validate(self, value):
         value = self.type_convert(value)
-        errors = list(e.message for e in self.validator.iter_errors(value))
+        errors = {e.path[0]: e.message for e in self.validator.iter_errors(value)}
         return normalize(self.validator.schema, value)[0], errors
 
 
-def request_validate(view):
+def request_validate(req, resp, resource, params):
 
-    @wraps(view)
-    def wrapper(*args, **kwargs):
-        endpoint = request.endpoint.partition('.')[-1]
-        # scope
-        if (endpoint, request.method) in scopes and not set(
-                scopes[(endpoint, request.method)]).issubset(set(security.scopes)):
-            abort(403)
-        # data
-        method = request.method
-        if method == 'HEAD':
-            method = 'GET'
-        locations = validators.get((endpoint, method), {})
-        for location, schema in six.iteritems(locations):
-            value = getattr(request, location, MultiDict())
-            if value is None:
-                value = MultiDict()
-            validator = FlaskValidatorAdaptor(schema)
-            result, errors = validator.validate(value)
-            if errors:
-                abort(422, message='Unprocessable Entity', errors=errors)
-            setattr(g, location, result)
-        return view(*args, **kwargs)
+    endpoint = _path_to_endpoint(req.uri_template)
+    # scope
+    if (endpoint, req.method) in scopes and not set(
+            scopes[(endpoint, req.method)]).issubset(set(security.scopes)):
+        falcon.HTTPUnauthorized('403403403')
+    # data
+    method = req.method
+    if method == 'HEAD':
+        method = 'GET'
+    locations = validators.get((endpoint, method), {})
+    options = {}
+    for location, schema in six.iteritems(locations):
+        value = getattr(req, location, MultiDict())
+        if location == 'headers':
+            value = {k.capitalize(): v for k, v in value.items()}
+        elif location == 'json':
+            body = req.stream.read()
 
-    return wrapper
-
-
-def response_filter(view):
-
-    @wraps(view)
-    def wrapper(*args, **kwargs):
-        resp = view(*args, **kwargs)
-
-        if isinstance(resp, current_app.response_class):
-            return resp
-
-        endpoint = request.endpoint.partition('.')[-1]
-        method = request.method
-        if method == 'HEAD':
-            method = 'GET'
-        filter = filters.get((endpoint, method), None)
-        if not filter:
-            return resp
-
-        headers = None
-        status = None
-        if isinstance(resp, tuple):
-            resp, status, headers = unpack(resp)
-
-        if len(filter) == 1:
-            if six.PY3:
-                status = list(filter.keys())[0]
-            else:
-                status = filter.keys()[0]
-
-        schemas = filter.get(status)
-        if not schemas:
-            # return resp, status, headers
-            abort(500, message='`%d` is not a defined status code.' % status)
-
-        resp, errors = normalize(schemas['schema'], resp)
-        if schemas['headers']:
-            headers, header_errors = normalize(
-                {'properties': schemas['headers']}, headers)
-            errors.extend(header_errors)
+            try:
+                value = json.loads(body.decode('utf-8'))
+            except (ValueError, UnicodeDecodeError):
+                raise falcon.HTTPError(falcon.HTTP_753,
+                                       'Malformed JSON',
+                                       'Could not decode the request body. The '
+                                       'JSON was incorrect or not encoded as '
+                                       'UTF-8.')
+        if value is None:
+            value = MultiDict()
+        validator = FlaskValidatorAdaptor(schema)
+        result, errors = validator.validate(value)
         if errors:
-            abort(500, message='Expectation Failed', errors=errors)
+            raise falcon.HTTPUnprocessableEntity('Unprocessable Entity', description=errors)
+        options[location] = result
+    req.options = options
 
-        return current_app.response_class(
-            json.dumps(resp, cls=JSONEncoder) + '\n',
-            status=status,
-            headers=headers,
-            mimetype='application/json'
-        )
 
-    return wrapper
+def response_filter(req, resp, resource):
+
+    endpoint = _path_to_endpoint(req.uri_template)
+    method = req.method
+    if method == 'HEAD':
+        method = 'GET'
+    filter = filters.get((endpoint, method), None)
+    if not filter:
+        return resp
+
+    headers = None
+    status = None
+
+    if len(filter) == 1:
+        if six.PY3:
+            status = list(filter.keys())[0]
+        else:
+            status = filter.keys()[0]
+
+    schemas = filter.get(status)
+    if not schemas:
+        # return resp, status, headers
+        raise falcon.HTTPInternalServerError(
+            'Not defined',
+            description='`%d` is not a defined status code.' % status)
+
+    _resp, errors = normalize(schemas['schema'], req.context['result'])
+    if schemas['headers']:
+        headers, header_errors = normalize(
+            {'properties': schemas['headers']}, headers)
+        errors.extend(header_errors)
+    if errors:
+        raise falcon.HTTPInternalServerError(title='Expectation Failed',
+                                             description=errors)
+
+    if 'result' not in req.context:
+        return
+    resp.body = json.dumps(_resp)

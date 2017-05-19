@@ -115,7 +115,8 @@ def _path_to_resource_name(swagger_path):
 
 def _location(swagger_location):
     location_map = {
-        'body': 'stream.read()',
+        'body': 'json',
+        'formData': 'form',
         'header': 'headers',
         'query': 'params'
     }

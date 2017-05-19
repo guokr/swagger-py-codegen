@@ -75,7 +75,7 @@ def test_swagger_to_tornado_url():
             'url': '/products/{product_id}',
             'data': {},
             'expect': (
-                '/products/(?P<product_id>[^/]+?)',
+                '/products/<<product_id>>',
                 ['product_id']
             )
         }

@@ -39,7 +39,7 @@ class JSONEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 
-class FlaskValidatorAdaptor(object):
+class FalconValidatorAdaptor(object):
 
     def __init__(self, schema):
         self.validator = Draft4Validator(schema)
@@ -118,7 +118,7 @@ def request_validate(req, resp, resource, params):
                                        'UTF-8.')
         if value is None:
             value = MultiDict()
-        validator = FlaskValidatorAdaptor(schema)
+        validator = FalconValidatorAdaptor(schema)
         result, errors = validator.validate(value)
         if errors:
             raise falcon.HTTPUnprocessableEntity('Unprocessable Entity', description=errors)

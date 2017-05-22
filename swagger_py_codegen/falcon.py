@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 import re
 from collections import OrderedDict
 
@@ -84,7 +84,7 @@ def _swagger_to_falcon_url(url, swagger_path_node):
                 continue
             t = p.get('type', 'string')
             if t in types:
-                yield '{%s}' % p['name'], '{%s:%s}' % (types[t], p['name'])
+                yield '{%s}' % p['name'], '{%s}' % p['name']
 
     for old, new in _type(node.get('parameters', [])):
         url = url.replace(old, new)

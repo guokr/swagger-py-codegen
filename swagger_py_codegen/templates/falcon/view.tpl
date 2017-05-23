@@ -3,12 +3,12 @@ from __future__ import absolute_import, print_function
 
 import falcon
 
-from . import  Validators, before_decorators, after_decorators
+from . import APIMetaclass
 
 
-@Validators(falcon.before(*before_decorators))
-@Validators(falcon.after(*after_decorators))
 class {{ name }}(object):
+
+    __metaclass__ = APIMetaclass
 
     {%- for method, ins in methods.items() %}
 

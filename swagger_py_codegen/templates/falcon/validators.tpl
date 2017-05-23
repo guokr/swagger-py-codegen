@@ -14,7 +14,7 @@ from werkzeug.datastructures import MultiDict, Headers
 from jsonschema import Draft4Validator
 
 from .schemas import (
-    validators, filters, scopes, security, merge_default, normalize)
+    validators, filters, scopes, security, base_path, normalize)
 
 
 if six.PY3:
@@ -26,9 +26,11 @@ else:
 
 
 def _path_to_endpoint(path):
-    return _remove_characters(
-        path.strip('/').replace('/', '_').replace('-', '_'),
-        '{}')
+    endpoint = path.strip('/').replace('/', '_').replace('-', '_')
+    _base_path = base_path.strip('/').replace('/', '_').replace('-', '_')
+    if endpoint.startswith(_base_path):
+        endpoint = endpoint[len(_base_path)+1:]
+    return _remove_characters(endpoint, '{}')
 
 
 class JSONEncoder(json.JSONEncoder):

@@ -102,7 +102,7 @@ def request_validate(req, resp, resource, params):
     if method == 'HEAD':
         method = 'GET'
     locations = validators.get((endpoint, method), {})
-    options = {}
+    context = {}
     for location, schema in six.iteritems(locations):
         value = getattr(req, location, MultiDict())
         if location == 'headers':
@@ -124,8 +124,8 @@ def request_validate(req, resp, resource, params):
         result, errors = validator.validate(value)
         if errors:
             raise falcon.HTTPUnprocessableEntity('Unprocessable Entity', description=errors)
-        options[location] = result
-    req.options = options
+        context[location] = result
+    req.context = context
 
 
 def response_filter(req, resp, resource):

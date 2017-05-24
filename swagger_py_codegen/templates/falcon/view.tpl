@@ -3,18 +3,16 @@ from __future__ import absolute_import, print_function
 
 import falcon
 
-from . import APIMetaclass
+from . import Resource
 
 
-class {{ name }}(object):
-
-    __metaclass__ = APIMetaclass
+class {{ name }}(Resource):
 
     {%- for method, ins in methods.items() %}
 
     def on_{{ method.lower() }}(self, req, resp{{ params.__len__() and ', ' or '' }}{{ params | join(', ') }}):
         {%- for request in ins.requests %}
-        print(req.options['{{ request }}'])
+        print(req.context['{{ request }}'])
         {%- endfor %}
 
         {% if 'response' in  ins -%}

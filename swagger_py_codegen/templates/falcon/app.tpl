@@ -4,7 +4,7 @@ from __future__ import absolute_import, print_function
 import falcon
 from wsgiref import simple_server
 
-import backend
+import {{blueprint}}
 
 
 class NotFoundError(object):
@@ -42,7 +42,7 @@ def create_app():
 
 
 def register_routes(app):
-    for route in backend.routes:
+    for route in {{blueprint}}.routes:
         url = '{prefix}{base_url}'.format(prefix='{{base_path}}',
                                           base_url=route.pop('url'))
         app.add_route(url, route.pop('resource'))

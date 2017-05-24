@@ -50,5 +50,5 @@ def register_routes(app):
 
 if __name__ == '__main__':
     app = create_app()
-    httpd = simple_server.make_server('127.0.0.1', 8888, app)
+    httpd = simple_server.make_server('127.0.0.1', 5000, app)
     httpd.serve_forever()

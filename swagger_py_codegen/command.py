@@ -14,6 +14,7 @@ import click
 from ._version import __version__
 from .flask import FlaskGenerator
 from .tornado import TornadoGenerator
+from .falcon import FalconGenerator
 from .parser import Swagger
 from .base import Template
 
@@ -96,6 +97,8 @@ def generate(destination, swagger_doc, force=False, package=None,
     swagger = Swagger(data, pool)
     if templates == 'tornado':
         generator = TornadoGenerator(swagger)
+    elif templates == 'falcon':
+        generator = FalconGenerator(swagger)
     else:
         generator = FlaskGenerator(swagger)
     generator.with_spec = specification

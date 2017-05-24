@@ -4,6 +4,8 @@
 
 {% include '_do_not_change.tpl' %}
 
+base_path = '{{base_path}}'
+
 {% for name, value in schemas.items() %}
 {{ name }} = {{ value }}
 {%- endfor %}

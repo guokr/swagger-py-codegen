@@ -96,6 +96,7 @@ def build_data(swagger):
         validators=validators,
         filters=filters,
         scopes=scopes,
+        base_path=swagger.base_path,
         merge_default=getsource(merge_default),
         normalize=getsource(normalize)
     )

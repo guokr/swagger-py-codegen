@@ -4,7 +4,7 @@
 
 ## Overview
 
-Generate Flask/Tornado-RESTful/Falcon application code from a Swagger Specification doc.
+Generate Flask/Tornado/Falcon-RESTful application code from a Swagger Specification doc.
 
 **Alpha version for now, it can not handle all validation properly.**
 
@@ -88,7 +88,7 @@ Generate example-app from [apis.yml](https://github.com/guokr/swagger-py-codegen
 	   |     |__ validators.py
 	   |__ requirements.txt
 
-    $ swagger_py_codegen -s  api.yml  example-app -p demo
+    $ swagger_py_codegen -s  api.yml  example-app -p demo -tlp=falcon
     $ tree (falcon-demo)
 	.
 	|__ api.yml

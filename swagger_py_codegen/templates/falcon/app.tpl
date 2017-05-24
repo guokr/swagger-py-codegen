@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function
 
+import os
+import mimetypes
+
 import falcon
 from wsgiref import simple_server
 
@@ -15,6 +18,17 @@ class NotFoundError(object):
             raise falcon.HTTPError(falcon.HTTP_404,
                                    'URL Not Found',
                                    description)
+
+
+class StaticAdapter(object):
+
+    def __call__(self, req, resp, filename):
+        file_path = os.path.join(os.path.dirname(__file__), "static/%s" % filename)
+        file_type = mimetypes.guess_type(file_path)[0]
+        resp.status = falcon.HTTP_200
+        resp.content_type = file_type
+        with open(file_path, 'r') as f:
+            resp.body = f.read()
 
 
 def http_error_serializer(req, resp, exception):
@@ -46,6 +60,8 @@ def register_routes(app):
         url = '{prefix}{base_url}'.format(prefix='{{base_path}}',
                                           base_url=route.pop('url'))
         app.add_route(url, route.pop('resource'))
+    static = StaticAdapter()
+    app.add_sink(static, r'/static/(?P<filename>.*)')
 
 
 if __name__ == '__main__':

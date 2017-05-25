@@ -5,14 +5,15 @@
 ## Overview
 
 
-This is a swagger codegen project for Python web framework, which allows generation of RESTful application code automatically given a Swagger Specification doc. Currently, the following languages/frameworks are supported:
+Swagger Py Codegen is a Python web framework generator, which can help you generate a Python web framework automatically based on a given Swagger Specification doc. Currently, the following languages/frameworks are supported:
+
 
 * [Flask](http://flask.pocoo.org/) (Python)
 * [Tornado](http://www.tornadoweb.org/en/stable/) (Python)
 * [Falcon](https://falconframework.org/) (Python)
 
 
-**Alpha version for now, it can not handle all validation properly.**
+**Alpha version for now, it may not handle all validation properly. If you found a bug, feel free to contact us.**
 
 
 ## Install

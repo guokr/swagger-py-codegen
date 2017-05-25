@@ -1,12 +1,19 @@
-# Flask/Tornado/Falcon RESTful Application Code Generator
+# RESTful Web Framework Generator
 
 [![Build Status][travis-image]][travis-url] [![PyPi Version][pypi-image]][pypi-url]
 
 ## Overview
 
-Generate Flask/Tornado/Falcon-RESTful application code from a Swagger Specification doc.
 
-**Alpha version for now, it can not handle all validation properly.**
+Swagger Py Codegen is a Python web framework generator, which can help you generate a Python web framework automatically based on a given Swagger Specification doc. Currently, the following languages/frameworks are supported:
+
+
+* [Flask](http://flask.pocoo.org/) (Python)
+* [Tornado](http://www.tornadoweb.org/en/stable/) (Python)
+* [Falcon](https://falconframework.org/) (Python)
+
+
+**Alpha version for now, it may not handle all validation properly. If you found a bug, feel free to contact us.**
 
 
 ## Install
@@ -25,7 +32,7 @@ swagger_py_codegen --swagger-doc api.yml example-app
 
 Command Options:
 
-    -s, --swagger, --swagger-doc    Swagger doc file.  [required]
+	-s, --swagger, --swagger-doc    Swagger doc file.  [required]
 	-f, --force                     Force overwrite.
 	-p, --package                   Package name / application name.
 	-t, --template-dir              Path of your custom templates directory.
@@ -38,13 +45,15 @@ Command Options:
 
 ## Examples:
 
-Generate example-app from [apis.yml](https://github.com/guokr/swagger-py-codegen/blob/master/api.yml "Title"):
+Generate example-app from [api.yml](https://github.com/guokr/swagger-py-codegen/blob/master/api.yml "Title"):
+
+#### Flask Example
 
     $tree
 	.
 	|__ api.yml
 
-    $ swagger_py_codegen -s  api.yml  example-app -p demo
+    $ swagger_py_codegen -s api.yml example-app -p demo
     $ tree (flask-demo)
 	.
 	|__ api.yml
@@ -65,7 +74,9 @@ Generate example-app from [apis.yml](https://github.com/guokr/swagger-py-codegen
 	   |     |__ validators.py
 	   |__ requirements.txt
 
-	$ swagger_py_codegen -s  api.yml  example-app -p demo -tlp=tornado
+#### Tornado Example
+
+	$ swagger_py_codegen -s api.yml example-app -p demo -tlp=tornado
     $ tree (tornado-demo)
 	.
 	|__ api.yml
@@ -88,7 +99,9 @@ Generate example-app from [apis.yml](https://github.com/guokr/swagger-py-codegen
 	   |     |__ validators.py
 	   |__ requirements.txt
 
-    $ swagger_py_codegen -s  api.yml  example-app -p demo -tlp=falcon
+#### Falcon Example
+
+    $ swagger_py_codegen -s api.yml example-app -p demo -tlp=falcon
     $ tree (falcon-demo)
 	.
 	|__ api.yml
@@ -109,6 +122,7 @@ Generate example-app from [apis.yml](https://github.com/guokr/swagger-py-codegen
 	   |     |__ validators.py
 	   |__ requirements.txt
 
+#### Run Web Server
 
 Install example-app requirements:
 
@@ -120,19 +134,28 @@ Start example-app:
     $ cd demo
     $ python __init__.py
 
-And generate example-app-ui from apis.yml with ui:
+And generate example-app-ui from api.yml with ui:
 
-    $ swagger_py_codegen -s  api.yml  example-app-ui -p demo-ui --ui --spec
+    $ swagger_py_codegen -s api.yml  example-app-ui -p demo-ui --ui --spec
 
-Then you can visit http://127.0.0.1:5000/static/swagger-ui/index.html in a browser.
+Then you can visit [http://127.0.0.1:5000/static/swagger-ui/index.html](http://127.0.0.1:5000/static/swagger-ui/index.html) in a browser.
+
+
+## Compatibility
+
+|component|compatibility|
+|-----|-----|
+|OpenAPI Spec|2.0|
+|Python|2.\*, 3.\*|
+
 
 ## Authors
---------
+
 See the [AUTHORS](https://github.com/guokr/swagger-py-codegen/blob/master/AUTHORS "Title").
 
 
 ## License
---------
+
 MIT
 
 [travis-url]: https://travis-ci.org/guokr/swagger-py-codegen

@@ -91,7 +91,10 @@ class Swagger(object):
     def get(self, path):
         key = ''.join(path)
         if key not in self._get_cached:
-            self._get_cached[key] = dpath.util.get(self.data, list(path))
+            value = self.data
+            for p in path:
+                value = value[p]
+            self._get_cached[key] = value
         return self._get_cached[key]
 
     def set(self, path, data):

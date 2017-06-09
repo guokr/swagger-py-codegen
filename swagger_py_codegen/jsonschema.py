@@ -156,7 +156,7 @@ def normalize(schema, data, required_defaults=None):
         def keys(self):
             if isinstance(self.data, dict):
                 return list(self.data.keys())
-            return list(vars(self.data).keys())
+            return list(getattr(self.data, '__dict__', {}).keys())
 
         def get_check(self, key, default=None):
             if isinstance(self.data, dict):
@@ -172,10 +172,26 @@ def normalize(schema, data, required_defaults=None):
                     has_key = True
             return value, has_key
 
+    def _merge_dict(src, dst):
+        for k, v in six.iteritems(dst):
+            if isinstance(src, dict):
+                if isinstance(v, dict):
+                    r = _merge_dict(src.get(k, {}), v)
+                    src[k] = r
+                else:
+                    src[k] = v
+            else:
+                src = {k: v}
+        return src
+
     def _normalize_dict(schema, data):
         result = {}
         if not isinstance(data, DataWrapper):
             data = DataWrapper(data)
+
+        for _schema in schema.get('allOf', []):
+            rs_component = _normalize(_schema, data)
+            _merge_dict(result, rs_component)
 
         for key, _schema in six.iteritems(schema.get('properties', {})):
             # set default
@@ -193,11 +209,6 @@ def normalize(schema, data, required_defaults=None):
                 else:
                     errors.append(dict(name='property_missing',
                                        message='`%s` is required' % key))
-
-        for _schema in schema.get('allOf', []):
-            rs_component = _normalize(_schema, data)
-            rs_component.update(result)
-            result = rs_component
 
         additional_properties_schema = schema.get('additionalProperties', False)
         if additional_properties_schema:

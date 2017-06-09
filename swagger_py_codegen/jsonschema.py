@@ -156,7 +156,7 @@ def normalize(schema, data, required_defaults=None):
         def keys(self):
             if isinstance(self.data, dict):
                 return list(self.data.keys())
-            return list(vars(self.data).keys())
+            return list(getattr(self.data, '__dict__', {}).keys())
 
         def get_check(self, key, default=None):
             if isinstance(self.data, dict):

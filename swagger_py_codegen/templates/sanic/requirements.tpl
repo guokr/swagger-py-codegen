@@ -1,0 +1,4 @@
+sanic
+jsonschema
+ujson
+uwsgi

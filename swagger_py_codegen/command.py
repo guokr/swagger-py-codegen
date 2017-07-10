@@ -15,6 +15,7 @@ from ._version import __version__
 from .flask import FlaskGenerator
 from .tornado import TornadoGenerator
 from .falcon import FalconGenerator
+from .sanic import SanicGenerator
 from .parser import Swagger
 from .base import Template
 
@@ -84,7 +85,7 @@ def print_version(ctx, param, value):
 @click.option('-j', '--jobs',
               default=4, help='Parallel jobs for processing.')
 @click.option('-tlp', '--templates',
-              default='flask', help='gen flask/tornado templates,default flask.')
+              default='flask', help='gen flask/tornado/falcon/sanic templates,default flask.')
 @click.option('--version', is_flag=True, callback=print_version,
               expose_value=False, is_eager=True,
               help='Show current version.')
@@ -99,6 +100,8 @@ def generate(destination, swagger_doc, force=False, package=None,
         generator = TornadoGenerator(swagger)
     elif templates == 'falcon':
         generator = FalconGenerator(swagger)
+    elif templates == 'sanic':
+        generator = SanicGenerator(swagger)
     else:
         generator = FlaskGenerator(swagger)
     generator.with_spec = specification

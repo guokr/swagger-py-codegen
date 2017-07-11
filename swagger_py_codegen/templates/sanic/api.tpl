@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import
 
 import inspect
 
@@ -25,7 +25,8 @@ def add_after_decorators(model_class):
     for name, m in inspect.getmembers(model_class, inspect.isfunction):
         if name in methods:
             for dec in after_decorators:
-                setattr(model_class, name, dec)
+                m = dec(m)
+            setattr(model_class, name, m)
 
 
 class APIMetaclass(type):
@@ -35,7 +36,7 @@ class APIMetaclass(type):
     def __init__(cls, name, bases, attrs):
         super(APIMetaclass, cls).__init__(name, bases, attrs)
         add_before_decorators(cls)
-        # add_after_decorators(cls)
+        add_after_decorators(cls)
 
 
 class Resource(HTTPMethodView, metaclass=APIMetaclass):

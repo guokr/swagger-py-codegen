@@ -10,9 +10,9 @@ class {{ name }}(Resource):
 
     {%- for method, ins in methods.items() %}
 
-    def {{ method.lower() }}(self, request{{ params.__len__() and ', ' or '' }}{{ params | join(', ') }}):
+    async def {{ method.lower() }}(self, request{{ params.__len__() and ', ' or '' }}{{ params | join(', ') }}):
         {%- for request in ins.requests %}
-        print(request.'{{request}}')
+        print(request.{{request}})
         {%- endfor %}
 
         {% if 'response' in  ins -%}

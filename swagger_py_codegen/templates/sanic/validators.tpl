@@ -132,7 +132,6 @@ def request_validate(view):
             result, errors = validator.validate(value)
             if errors:
                 raise ServerError('Unprocessable Entity', status_code=422)
-            request[location] = result
         return view(*args, **kwargs)
 
     return wrapper

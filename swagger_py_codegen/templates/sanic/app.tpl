@@ -8,13 +8,27 @@ import {{ blueprint }}
 
 def create_app():
     app = Sanic(__name__)
-    app.register_blueprint(
-        {{ blueprint }}.bp,
-        url_prefix='{{ base_path }}')
+    app.static('/static', './static')
+    app.blueprint({{ blueprint }}.bp)
     return app
 
 
 app = create_app()
+
+@app.exception(NotFound)
+def not_found(request, exception):
+    return json({'error_code': 'not_found',
+                 'message': exception.args[0]},
+                status=exception.status_code,
+                )
+
+
+@app.exception(InvalidUsage)
+def method_not_allow(request, exception):
+    return json({'error_code': 'method_not_allow',
+                 'message': exception.args[0]},
+                status=exception.status_code,
+                )
 
 
 if __name__ == '__main__':

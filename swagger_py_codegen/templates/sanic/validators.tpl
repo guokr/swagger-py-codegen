@@ -8,19 +8,42 @@
 ###
 from __future__ import absolute_import, print_function
 
+import re
 import json
-import inspect
 from datetime import date
 from functools import wraps
 
 import six
+from sanic import response
 from sanic.exceptions import ServerError
+from sanic.response import HTTPResponse
 
 from werkzeug.datastructures import MultiDict, Headers
+from sanic.request import RequestParameters
 from jsonschema import Draft4Validator
 
 from .schemas import (
     validators, filters, scopes, security, base_path, normalize)
+
+
+def unpack(value):
+    """Return a three tuple of data, code, and headers"""
+    if not isinstance(value, tuple):
+        return value, 200, {}
+
+    try:
+        data, code, headers = value
+        return data, code, headers
+    except ValueError:
+        pass
+
+    try:
+        data, code = value
+        return data, code, {}
+    except ValueError:
+        pass
+
+    return value, 200, {}
 
 
 def _remove_characters(text, deletechars):
@@ -28,7 +51,7 @@ def _remove_characters(text, deletechars):
 
 
 def _path_to_endpoint(path):
-    endpoint = path.strip('/').replace('/', '_').replace('-', '_')
+    endpoint = '_'.join(filter(None, re.sub(r'(/|<|>|-)', r'_', path).split('_')))
     _base_path = base_path.strip('/').replace('/', '_').replace('-', '_')
     if endpoint.startswith(_base_path):
         endpoint = endpoint[len(_base_path)+1:]
@@ -57,7 +80,7 @@ class SanicValidatorAdaptor(object):
     def type_convert(self, obj):
         if obj is None:
             return None
-        if isinstance(obj, (dict, list)) and not isinstance(obj, MultiDict):
+        if isinstance(obj, (dict, list)) and not isinstance(obj, RequestParameters):
             return obj
         if isinstance(obj, Headers):
             obj = MultiDict(obj.items())
@@ -75,7 +98,7 @@ class SanicValidatorAdaptor(object):
             func = convert_funs.get(type_, lambda v: v[0])
             return [func([i]) for i in v]
 
-        for k, values in obj.lists():
+        for k, values in obj.items():
             prop = self.validator.schema['properties'].get(k, {})
             type_ = prop.get('type')
             fun = convert_funs.get(type_, lambda v: v[0])
@@ -88,10 +111,6 @@ class SanicValidatorAdaptor(object):
 
     def validate(self, value):
         value = self.type_convert(value)
-        print(value)
-        print(self.validator.iter_errors(value))
-        for e in self.validator.iter_errors(value):
-            print(e.path, e.message)
         errors = list(e.message for e in self.validator.iter_errors(value))
         return normalize(self.validator.schema, value)[0], errors
 
@@ -112,16 +131,14 @@ def request_validate(view):
             method = 'GET'
         locations = validators.get((endpoint, method), {})
         for location, schema in locations.items():
-            print(location)
             value = getattr(request, location, MultiDict())
             if value is None:
                 value = MultiDict()
-            print(value)
             validator = SanicValidatorAdaptor(schema)
             result, errors = validator.validate(value)
             if errors:
                 raise ServerError('Unprocessable Entity', status_code=422)
-            setattr(g, location, result)
+            request[location] = result
         return view(*args, **kwargs)
 
     return wrapper
@@ -131,12 +148,13 @@ def response_filter(view):
 
     @wraps(view)
     def wrapper(*args, **kwargs):
+        request = args[1]
         resp = view(*args, **kwargs)
 
-        if isinstance(resp, current_app.response_class):
+        if isinstance(resp, HTTPResponse):
             return resp
 
-        endpoint = request.endpoint.partition('.')[-1]
+        endpoint = _path_to_endpoint(request.uri_template)
         method = request.method
         if method == 'HEAD':
             method = 'GET'
@@ -158,7 +176,7 @@ def response_filter(view):
         schemas = filter.get(status)
         if not schemas:
             # return resp, status, headers
-            abort(500, message='`%d` is not a defined status code.' % status)
+            raise ServerError('`%d` is not a defined status code.' % status, 500)
 
         resp, errors = normalize(schemas['schema'], resp)
         if schemas['headers']:
@@ -166,13 +184,12 @@ def response_filter(view):
                 {'properties': schemas['headers']}, headers)
             errors.extend(header_errors)
         if errors:
-            abort(500, message='Expectation Failed', errors=errors)
+            raise ServerError('Expectation Failed', 500)
 
-        return current_app.response_class(
-            json.dumps(resp, cls=JSONEncoder) + '\n',
+        return response.json(
+            resp,
             status=status,
             headers=headers,
-            mimetype='application/json'
         )
 
     return wrapper

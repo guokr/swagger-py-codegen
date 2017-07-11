@@ -70,6 +70,8 @@ definitions:
         type: string
   User:
     properties:
+      id:
+        type: string
       nickname:
         type: string
       avatar:

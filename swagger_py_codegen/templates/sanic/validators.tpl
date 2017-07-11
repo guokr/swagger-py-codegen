@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
-
-###
-### DO NOT CHANGE THIS FILE
-###
-### The code is auto generated, your change will be overwritten by
-### code generating.
-###
+{% include '_do_not_change.tpl' %}
 from __future__ import absolute_import, print_function
 
 import re

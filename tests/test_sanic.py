@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+import six
+
 from swagger_py_codegen.parser import Swagger
 from swagger_py_codegen.sanic import (
     _swagger_to_sanic_url,
@@ -80,8 +82,9 @@ def test_swagger_to_sanic_url():
             )
         }
     ]
-    for case in cases:
-        assert _swagger_to_sanic_url(case['url'], case['data']) == case['expect']
+    if six.PY3:
+        for case in cases:
+            assert _swagger_to_sanic_url(case['url'], case['data']) == case['expect']
 
 
 def test_path_to_endpoint():
@@ -95,8 +98,9 @@ def test_path_to_endpoint():
         'path': '/users/{id}/hat-size',
         'expect': 'users_id_hat_size'
     }]
-    for case in cases:
-        assert _path_to_endpoint(case['path']) == case['expect']
+    if six.PY3:
+        for case in cases:
+            assert _path_to_endpoint(case['path']) == case['expect']
 
 
 def test_path_to_resource_name():
@@ -110,8 +114,9 @@ def test_path_to_resource_name():
         'path': '/posts/{post_id}/last-reply',
         'expect': 'PostsPostIdLastReply'
     }]
-    for case in cases:
-        assert _path_to_resource_name(case['path']) == case['expect']
+    if six.PY3:
+        for case in cases:
+            assert _path_to_resource_name(case['path']) == case['expect']
 
 
 def test_process_data():
@@ -133,12 +138,12 @@ def test_process_data():
             }
         }
     }
-    swagger = Swagger(data)
-    generator = SanicGenerator(swagger)
-    schemas, routes, view1, view2 = list(generator.generate())[:4]
-    view1, view2 = sorted([view1, view2], key=lambda x: x.data['name'])
-    print (schemas.data['validators'][('posts_post_id', 'GET')])
-    assert ('posts_post_id', 'GET') in schemas.data['validators']
-    assert schemas.data['validators'][('posts_post_id', 'GET')]['args']['properties']['page']['type'] == 'integer'
-    assert view1.data['url'] == '/posts/<int:post_id>'
-    assert view1.data['name'] == 'PostsPostId'
+    if six.PY3:
+        swagger = Swagger(data)
+        generator = SanicGenerator(swagger)
+        schemas, routes, view1, view2 = list(generator.generate())[:4]
+        view1, view2 = sorted([view1, view2], key=lambda x: x.data['name'])
+        assert ('posts_post_id', 'GET') in schemas.data['validators']
+        assert schemas.data['validators'][('posts_post_id', 'GET')]['args']['properties']['page']['type'] == 'integer'
+        assert view1.data['url'] == '/posts/<int:post_id>'
+        assert view1.data['name'] == 'PostsPostId'

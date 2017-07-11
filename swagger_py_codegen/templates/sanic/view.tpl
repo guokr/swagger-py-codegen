@@ -12,7 +12,7 @@ class {{ name }}(Resource):
 
     def {{ method.lower() }}(self, request{{ params.__len__() and ', ' or '' }}{{ params | join(', ') }}):
         {%- for request in ins.requests %}
-        print('{{request}}')
+        print(request.'{{request}}')
         {%- endfor %}
 
         {% if 'response' in  ins -%}

@@ -70,6 +70,8 @@ definitions:
         type: string
   User:
     properties:
+      id:
+        type: string
       nickname:
         type: string
       avatar:
@@ -92,6 +94,16 @@ parameters:
     name: Authentication
     in: header
     required: true
+    type: string
+  uid_in_path:
+    name: uid
+    in: path
+    required: true
+    type: string
+  name_in_query:
+    name: name
+    in: query
+    required: false
     type: string
 securityDefinitions:
   OAuth2:
@@ -223,5 +235,18 @@ paths:
             $ref: '#/definitions/Error'
       parameters:
         - $ref: '#/parameters/AccessToken'
-      security: 
-        - OAuth2: [open]
+  /users/{uid}:
+    get:
+      summary: get current user info
+      responses:
+        200:
+          schema:
+            $ref: '#/definitions/User'
+          description: user info
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+      parameters:
+        - $ref: '#/parameters/uid_in_path'
+        - $ref: '#/parameters/name_in_query'

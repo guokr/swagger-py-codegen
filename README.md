@@ -11,6 +11,7 @@ Swagger Py Codegen is a Python web framework generator, which can help you gener
 * [Flask](http://flask.pocoo.org/) (Python)
 * [Tornado](http://www.tornadoweb.org/en/stable/) (Python)
 * [Falcon](https://falconframework.org/) (Python)
+* [Sanic](https://github.com/channelcat/sanic) (Python)
 
 
 **Alpha version for now, it may not handle all validation properly. If you found a bug, feel free to contact us.**
@@ -122,6 +123,31 @@ Generate example-app from [api.yml](https://github.com/guokr/swagger-py-codegen/
 	   |     |__ validators.py
 	   |__ requirements.txt
 
+
+#### Sanic Example
+
+    $ swagger_py_codegen -s api.yml example-app -p demo -tlp=sanic
+    $ tree (sanic-demo)
+	.
+	|__ api.yml
+	|__ example-app
+	   |__ demo
+	   |  |__ __init__.py
+	   |  |__ v1
+	   |     |__ api
+	   |     |  |__ __init__.py
+	   |     |  |__ oauth_auth_approach_approach.py
+	   |     |  |__ oauth_auth_approach.py
+	   |     |  |__ users_token.py
+	   |     |  |__ users_current.py
+	   |     |  |__ users.py
+	   |     |__ __init__.py
+	   |     |__ routes.py
+	   |     |__ schemas.py
+	   |     |__ validators.py
+	   |__ requirements.txt
+
+
 #### Run Web Server
 
 Install example-app requirements:
@@ -146,7 +172,7 @@ Then you can visit [http://127.0.0.1:5000/static/swagger-ui/index.html](http://1
 |component|compatibility|
 |-----|-----|
 |OpenAPI Spec|2.0|
-|Python|2.\*, 3.\*|
+|Python|2.\*, 3.\*(Sanic only 3.\*)|
 
 
 ## Authors

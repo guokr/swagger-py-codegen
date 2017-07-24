@@ -143,11 +143,8 @@ class SanicGenerator(CodeGenerator):
         self.with_ui = False
 
     def _dependence_callback(self, code):
-        print(code)
         if not isinstance(code, Schema):
             return code
-        print(code.template)
-        print(code.dest_template)
         schemas = code
         # schemas default key likes `('/some/path/{param}', 'method')`
         # use sanic endpoint to replace default validator's key,

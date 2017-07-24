@@ -3,9 +3,16 @@ import re
 from collections import OrderedDict
 
 from .base import Code, CodeGenerator
-from .jsonschema import Schema, SchemaGenerator, build_default
+from .jsonschema import build_default, build_data
 
 SUPPORT_METHODS = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head']
+
+
+class Schema(Code):
+
+    template = 'sanic/schemas.tpl'
+    dest_template = '%(package)s/%(module)s/schemas.py'
+    override = True
 
 
 class Router(Code):
@@ -64,6 +71,12 @@ class UIIndex(Code):
 
     template = 'ui/index.html'
     dest_template = '%(package)s/static/swagger-ui/index.html'
+
+
+class SchemaGenerator(CodeGenerator):
+
+    def _process(self):
+        yield Schema(build_data(self.swagger))
 
 
 def _swagger_to_sanic_url(url, swagger_path_node):

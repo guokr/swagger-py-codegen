@@ -8,7 +8,7 @@ from .validators import security
 
 
 @security.scopes_loader
-def current_scopes():
+def current_scopes(request):
     return {{ scopes_supported }}
 
 bp = Blueprint('{{ blueprint }}', __name__)

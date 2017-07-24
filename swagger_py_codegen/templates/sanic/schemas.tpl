@@ -41,7 +41,7 @@ class Security(object):
 
     def __init__(self):
         super(Security, self).__init__()
-        self._loader = lambda: []
+        self._loader = lambda x: []
 
     @property
     def scopes(self):

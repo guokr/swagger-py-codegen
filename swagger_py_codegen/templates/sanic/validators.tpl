@@ -17,7 +17,7 @@ from sanic.request import RequestParameters
 from jsonschema import Draft4Validator
 
 from .schemas import (
-    validators, filters, scopes, security, base_path, normalize)
+    validators, filters, scopes, security, base_path, normalize, current)
 
 
 def unpack(value):
@@ -115,6 +115,7 @@ def request_validate(view):
     def wrapper(*args, **kwargs):
         request = args[1]
         endpoint = _path_to_endpoint(request.uri_template)
+        current.request = request
         # scope
         if (endpoint, request.method) in scopes and not set(
                 scopes[(endpoint, request.method)]).issubset(set(security.scopes)):
@@ -144,7 +145,7 @@ def response_filter(view):
         request = args[1]
         resp = view(*args, **kwargs)
 
-	    from inspect import isawaitable
+        from inspect import isawaitable
         if isawaitable(resp):
             resp = await resp
         if isinstance(resp, HTTPResponse):

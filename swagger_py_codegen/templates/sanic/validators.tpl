@@ -140,10 +140,13 @@ def request_validate(view):
 def response_filter(view):
 
     @wraps(view)
-    def wrapper(*args, **kwargs):
+    async def wrapper(*args, **kwargs):
         request = args[1]
         resp = view(*args, **kwargs)
 
+	    from inspect import isawaitable
+        if isawaitable(resp):
+            resp = await resp
         if isinstance(resp, HTTPResponse):
             return resp
 

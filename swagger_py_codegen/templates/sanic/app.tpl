@@ -5,6 +5,10 @@ from sanic import Sanic
 from sanic.response import json
 from sanic.exceptions import NotFound, InvalidUsage
 
+from .custom_errors import (UnprocessableEntity,
+                            ServerError as _ServerError,
+                            Forbidden as _Forbidden)
+
 import {{ blueprint }}
 
 
@@ -16,6 +20,17 @@ def create_app():
 
 
 app = create_app()
+
+@app.exception(UnprocessableEntity, _Forbidden, _ServerError)
+def custom_json_errors(request, exception):
+    return json(
+        {
+            'error_code': exception.error_code,
+            'message': exception.message,
+            'errors': exception.errors
+        },
+        status=exception.status_code)
+
 
 @app.exception(NotFound)
 def not_found(request, exception):

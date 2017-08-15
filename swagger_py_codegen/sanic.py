@@ -61,6 +61,13 @@ class App(Code):
     dest_template = '%(package)s/__init__.py'
 
 
+class CustomErrors(Code):
+
+    template = 'sanic/custom_errors.tpl'
+    dest_template = '%(package)s/custom_errors.py'
+    override = True
+
+
 class Requirements(Code):
 
     template = 'sanic/requirements.tpl'
@@ -240,6 +247,8 @@ class SanicGenerator(CodeGenerator):
                              blueprint=self.swagger.module_name))
         yield App(dict(blueprint=self.swagger.module_name,
                        base_path=self.swagger.base_path))
+
+        yield CustomErrors()
 
         yield Requirements()
 

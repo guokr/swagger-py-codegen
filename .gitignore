@@ -104,5 +104,6 @@ pip-selfcheck.json
 /site
 
 *.swp
+example-app
 
 # End of https://www.gitignore.io/api/python

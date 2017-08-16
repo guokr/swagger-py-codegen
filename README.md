@@ -1,4 +1,4 @@
-# RESTful Web Framework Generator
+# Python RESTful Web Framework Generator
 
 [![Build Status][travis-image]][travis-url] [![PyPi Version][pypi-image]][pypi-url]
 
@@ -50,10 +50,6 @@ Generate example-app from [api.yml](https://github.com/guokr/swagger-py-codegen/
 
 #### Flask Example
 
-    $tree
-	.
-	|__ api.yml
-
     $ swagger_py_codegen -s api.yml example-app -p demo
     $ tree (flask-demo)
 	.
@@ -64,11 +60,8 @@ Generate example-app from [api.yml](https://github.com/guokr/swagger-py-codegen/
 	   |  |__ v1
 	   |     |__ api
 	   |     |  |__ __init__.py
-	   |     |  |__ oauth_auth_approach_approach.py
-	   |     |  |__ oauth_auth_approach.py
-	   |     |  |__ users_token.py
-	   |     |  |__ users_current.py
-	   |     |  |__ users.py
+	   |     |  |__ pets.py
+	   |     |  |__ pets_petId.py
 	   |     |__ __init__.py
 	   |     |__ routes.py
 	   |     |__ schemas.py
@@ -89,11 +82,8 @@ Generate example-app from [api.yml](https://github.com/guokr/swagger-py-codegen/
 	   |  |__ v1
 	   |     |__ api
 	   |     |  |__ __init__.py
-	   |     |  |__ oauth_auth_approach_approach.py
-	   |     |  |__ oauth_auth_approach.py
-	   |     |  |__ users_token.py
-	   |     |  |__ users_current.py
-	   |     |  |__ users.py
+	   |     |  |__ pets.py
+	   |     |  |__ pets_petId.py
 	   |     |__ __init__.py
 	   |     |__ routes.py
 	   |     |__ schemas.py
@@ -112,11 +102,8 @@ Generate example-app from [api.yml](https://github.com/guokr/swagger-py-codegen/
 	   |  |__ v1
 	   |     |__ api
 	   |     |  |__ __init__.py
-	   |     |  |__ oauth_auth_approach_approach.py
-	   |     |  |__ oauth_auth_approach.py
-	   |     |  |__ users_token.py
-	   |     |  |__ users_current.py
-	   |     |  |__ users.py
+	   |     |  |__ pets.py
+	   |     |  |__ pets_petId.py
 	   |     |__ __init__.py
 	   |     |__ routes.py
 	   |     |__ schemas.py
@@ -136,11 +123,8 @@ Generate example-app from [api.yml](https://github.com/guokr/swagger-py-codegen/
 	   |  |__ v1
 	   |     |__ api
 	   |     |  |__ __init__.py
-	   |     |  |__ oauth_auth_approach_approach.py
-	   |     |  |__ oauth_auth_approach.py
-	   |     |  |__ users_token.py
-	   |     |  |__ users_current.py
-	   |     |  |__ users.py
+	   |     |  |__ pets.py
+	   |     |  |__ pets_petId.py
 	   |     |__ __init__.py
 	   |     |__ routes.py
 	   |     |__ schemas.py

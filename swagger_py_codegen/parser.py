@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
-import string
+
 import copy
 import dpath.util
 import six
 from six.moves import map
 import sys
+
 
 def schema_var_name(path):
     return ''.join(map(str.capitalize, path))

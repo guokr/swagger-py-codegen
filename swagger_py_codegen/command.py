@@ -85,7 +85,7 @@ def print_version(ctx, param, value):
 @click.option('-j', '--jobs',
               default=4, help='Parallel jobs for processing.')
 @click.option('-tlp', '--templates',
-              default='flask', help='gen flask/tornado/falcon/sanic templates,default flask.')
+              default='flask', help='gen flask/tornado/falcon/sanic templates, default flask.')
 @click.option('--version', is_flag=True, callback=print_version,
               expose_value=False, is_eager=True,
               help='Show current version.')
@@ -135,4 +135,3 @@ def generate(destination, swagger_doc, force=False, package=None,
 
         if status != 'skip':
             write(dest, source)
-

@@ -96,12 +96,14 @@ def _swagger_to_falcon_url(url, swagger_path_node):
 
     return url, params
 
+
 if six.PY3:
     def _remove_characters(text, deletechars):
         return text.translate({ord(x): None for x in deletechars})
 else:
     def _remove_characters(text, deletechars):
         return text.translate(None, deletechars)
+
 
 def _path_to_endpoint(swagger_path):
     return _remove_characters(

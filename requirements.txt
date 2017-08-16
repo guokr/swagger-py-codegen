@@ -1,0 +1,5 @@
+six
+click
+jinja2
+dpath
+PyYAML

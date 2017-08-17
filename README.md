@@ -151,6 +151,11 @@ And generate example-app-ui from api.yml with ui:
 Then you can visit [http://127.0.0.1:5000/static/swagger-ui/index.html](http://127.0.0.1:5000/static/swagger-ui/index.html) in a browser.
 
 
+#### OAuth2 Scopes Usage
+
+See the [wiki](https://github.com/guokr/swagger-py-codegen/wiki/OAuth2-Scopes-Usage)
+
+
 ## Compatibility
 
 |component|compatibility|

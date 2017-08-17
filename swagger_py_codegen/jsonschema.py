@@ -19,7 +19,6 @@ def _parameters_to_schemas(params):
     for location in locations:
         required = []
         properties = {}
-        type_ = 'object'
         for param in params:
             if param.get('in') != location:
                 continue
@@ -242,7 +241,7 @@ def normalize(schema, data, required_defaults=None):
             'default': _normalize_default,
         }
         type_ = schema.get('type', 'object')
-        if not type_ in funcs:
+        if type_ not in funcs:
             type_ = 'default'
 
         return funcs[type_](schema, data)

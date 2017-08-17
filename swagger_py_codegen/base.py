@@ -65,4 +65,3 @@ class Template(object):
     def render_code(self, code):
         code.before_render(self)
         return self.render(code.template, **code.data)
-

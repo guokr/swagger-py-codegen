@@ -74,12 +74,6 @@ class UIIndex(Code):
 
 
 def _swagger_to_tornado_url(url, swagger_path_node):
-    types = {
-        'integer': 'int',
-        'long': 'int',
-        'float': 'float',
-        'double': 'float'
-    }
     node = swagger_path_node
     params = re.findall(r'\{([^\}]+?)\}', url)
     url = re.sub(r'{(.*?)}', '<<\\1>>', url)
@@ -101,12 +95,14 @@ def _swagger_to_tornado_url(url, swagger_path_node):
 
     return url, params
 
+
 if six.PY3:
     def _remove_characters(text, deletechars):
         return text.translate({ord(x): None for x in deletechars})
 else:
     def _remove_characters(text, deletechars):
         return text.translate(None, deletechars)
+
 
 def _path_to_endpoint(swagger_path):
     return _remove_characters(

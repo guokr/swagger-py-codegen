@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import sys
 import copy
-import dpath.util
 import six
 from six.moves import map
-import sys
+
+import dpath.util
+from jsonspec.reference import resolve
 
 
 def schema_var_name(path):
@@ -22,6 +24,10 @@ class RefNode(dict):
         return schema_var_name(self.ref)
 
 
+class SwaggerSpecError(Exception):
+    pass
+
+
 class Swagger(object):
 
     separator = '\0'
@@ -30,24 +36,31 @@ class Swagger(object):
         self.data = data
         self.origin_data = copy.deepcopy(data)
         self._definitions = []
-        self._references_sort()
+        self._resolve_definitions()
         self._get_cached = {}
         if pool:
+            pool.map()
             process_references(self, pool)
         else:
             self._process_ref()
 
     def _process_ref(self):
+        """
+        resolve all references util no reference
+        """
+        while 1:
+            li = self.search(['**', '$ref'])
+            if not li:
+                break
+            for path, ref in li:
+                data = resolve(self.data, ref)
+                path = path[:-1]
+                self.set(path, data)
 
-        for path, ref in self.search(['**', '$ref']):
-            ref = ref.lstrip('#/').split('/')
-            ref = tuple(ref)
-            data = self.get(ref)
-
-            path = path[:-1]
-            self.set(path, RefNode(data, ref))
-
-    def _references_sort(self):
+    def _resolve_definitions(self):
+        """
+        ensure there not exists circular references and load definitions
+        """
 
         def get_definition_refs():
             definition_refs_default = {}
@@ -81,8 +94,10 @@ class Swagger(object):
             self._definitions += ready
 
     def search(self, path):
+        li = []
         for p, d in dpath.util.search(self.data, list(path), True, self.separator):
-            yield tuple(p.split(self.separator)), d
+            li.append((tuple(p.split(self.separator)), d))
+        return li
 
     def pickle_search(self, path):
         for p, d in dpath.util.search(self.data, list(path), True,
@@ -126,7 +141,11 @@ def process_input_func(data_to_process):
     sys.stdout.flush()
     ref = ref.lstrip('#/').split('/')
     ref = tuple(ref)
-    data = swagger.get(ref)
+    try:
+        data = swagger.get(ref)
+    except KeyError:
+        raise SwaggerSpecError('%s %s not defined' % ref)
+    # data = resolve(swagger.data, ref)
     path = path[:-1]
     return (path, RefNode(data, ref))
 

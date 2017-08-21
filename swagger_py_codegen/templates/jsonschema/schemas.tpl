@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import six
+
 # TODO: datetime support
 
 {% include '_do_not_change.tpl' %}
@@ -49,4 +51,3 @@ security = Security()
 {{ merge_default }}
 
 {{ normalize }}
-

@@ -1,10 +1,11 @@
 from __future__ import absolute_import
+
+import six
 from collections import OrderedDict
 from inspect import getsource
 
 from .base import Code, CodeGenerator
 from .parser import schema_var_name
-import six
 
 
 class Schema(Code):
@@ -129,9 +130,6 @@ def build_default(schema):
 
 
 def normalize(schema, data, required_defaults=None):
-
-    import six
-
     if required_defaults is None:
         required_defaults = {}
     errors = []

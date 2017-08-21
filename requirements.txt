@@ -1,4 +1,5 @@
 six
+json-spec
 click
 jinja2
 dpath

@@ -95,7 +95,7 @@ def generate(destination, swagger_doc, force=False, package=None,
     pool = Pool(processes=int(jobs))
     package = package or destination.replace('-', '_')
     data = spec_load(swagger_doc)
-    swagger = Swagger(data, pool)
+    swagger = Swagger(data)
     if templates == 'tornado':
         generator = TornadoGenerator(swagger)
     elif templates == 'falcon':

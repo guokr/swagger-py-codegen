@@ -39,7 +39,6 @@ class Swagger(object):
         self._resolve_definitions()
         self._get_cached = {}
         if pool:
-            pool.map()
             process_references(self, pool)
         else:
             self._process_ref()
@@ -114,7 +113,22 @@ class Swagger(object):
         return self._get_cached[key]
 
     def set(self, path, data):
-        dpath.util.set(self.data, list(path), data)
+        # dpath.util.set(self.data, list(path), data)
+        next_ref = self.data
+        for pn in path[:-1]:
+            if isinstance(next_ref, list):
+                next_ref = next_ref[int(pn)]
+            elif isinstance(next_ref, dict):
+                if pn in next_ref:
+                    next_ref = next_ref[pn]
+                elif int(pn) in next_ref:
+                    next_ref = next_ref[int(pn)]
+        if isinstance(next_ref, dict):
+            idx = path[-1]
+            next_ref[idx] = data
+        elif isinstance(next_ref, list):
+            idx = int(path[-1])
+            next_ref[idx] = data
 
     @property
     def definitions(self):

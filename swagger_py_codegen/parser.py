@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import sys
 import copy
 import six
 from six.moves import map
@@ -24,28 +23,22 @@ class RefNode(dict):
         return schema_var_name(self.ref)
 
 
-class SwaggerSpecError(Exception):
-    pass
-
-
 class Swagger(object):
 
     separator = '\0'
 
-    def __init__(self, data, pool=None):
+    def __init__(self, data):
         self.data = data
         self.origin_data = copy.deepcopy(data)
         self._definitions = []
         self._resolve_definitions()
         self._get_cached = {}
-        if pool:
-            process_references(self, pool)
-        else:
-            self._process_ref()
+
+        self._process_ref()
 
     def _process_ref(self):
         """
-        resolve all references util no reference
+        resolve all references util no reference exists
         """
         while 1:
             li = list(self.search(['**', '$ref']))
@@ -100,11 +93,6 @@ class Swagger(object):
                 self.data, list(path), True, self.separator):
             yield tuple(p.split(self.separator)), d
 
-    def pickle_search(self, path):
-        for p, d in dpath.util.search(self.data, list(path), True,
-                                      self.separator):
-            yield (self, tuple(p.split(self.separator)), d)
-
     def get(self, path):
         key = ''.join(path)
         if key not in self._get_cached:
@@ -115,22 +103,7 @@ class Swagger(object):
         return self._get_cached[key]
 
     def set(self, path, data):
-        # dpath.util.set(self.data, list(path), data)
-        next_ref = self.data
-        for pn in path[:-1]:
-            if isinstance(next_ref, list):
-                next_ref = next_ref[int(pn)]
-            elif isinstance(next_ref, dict):
-                if pn in next_ref:
-                    next_ref = next_ref[pn]
-                elif int(pn) in next_ref:
-                    next_ref = next_ref[int(pn)]
-        if isinstance(next_ref, dict):
-            idx = path[-1]
-            next_ref[idx] = data
-        elif isinstance(next_ref, list):
-            idx = int(path[-1])
-            next_ref[idx] = data
+        _set(self.data, path, data)
 
     @property
     def definitions(self):
@@ -151,44 +124,32 @@ class Swagger(object):
         return self.data.get('basePath', '/v1')
 
 
-def process_input_func(data_to_process):
-    (swagger, path, ref) = data_to_process
-    sys.stdout.write('.')
-    sys.stdout.flush()
-    ref = ref.lstrip('#/').split('/')
-    ref = tuple(ref)
-    try:
-        data = swagger.get(ref)
-    except KeyError:
-        raise SwaggerSpecError('%s %s not defined' % ref)
-    # data = resolve(swagger.data, ref)
-    path = path[:-1]
-    return (path, RefNode(data, ref))
-
-
-def process_references(swagger, pool):
+def _set(obj, path, value):
     """
-    Processed references in swagger data
-    :param swagger:
-    :return:
+    set value for path in the given obj only if path exists.
+    if not, IndexError or KeyError will be raised.
+    params:
+        obj - dict or list object
+        path - list object represents keys in object
+        value - value to be set
     """
-    data_set = pool.map(process_input_func,
-                        swagger.pickle_search(['**', '$ref']))
-    for path, node in data_set:
-        sys.stdout.write('.')
-        sys.stdout.flush()
-        next_ref = swagger.data
-        for pn in path[:-1]:
-            if isinstance(next_ref, list):
-                next_ref = next_ref[int(pn)]
-            elif isinstance(next_ref, dict):
-                if pn in next_ref:
-                    next_ref = next_ref[pn]
-                elif int(pn) in next_ref:
-                    next_ref = next_ref[int(pn)]
-        if isinstance(next_ref, dict):
-            idx = path[-1]
-            next_ref[idx] = node
-        elif isinstance(next_ref, list):
-            idx = int(path[-1])
-            next_ref[idx] = node
+    target = obj
+    for elem in path[:-1]:
+        if isinstance(target, list):
+            target = target[int(elem)]
+        elif isinstance(target, dict):
+            if elem not in target:
+                # special handler out of int status_code
+                # definition in swagger spec
+                elem = int(elem)
+            target = target[elem]
+        else:
+            raise TypeError('try to extract `%s` from target %s'
+                            % (elem, target))
+    idx = path[-1]
+    if isinstance(target, dict):
+        target[idx] = value
+    elif isinstance(target, list):
+        target[int(idx)] = value
+    else:
+        raise TypeError('try to set `%s` for target %s' % (idx, target))

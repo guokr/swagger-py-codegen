@@ -48,7 +48,7 @@ class Swagger(object):
         resolve all references util no reference
         """
         while 1:
-            li = self.search(['**', '$ref'])
+            li = list(self.search(['**', '$ref']))
             if not li:
                 break
             for path, ref in li:
@@ -81,7 +81,10 @@ class Swagger(object):
 
         definition_refs = get_definition_refs()
         while definition_refs:
-            ready = {definition for definition, refs in six.iteritems(definition_refs) if not refs}
+            ready = {
+                definition for definition, refs
+                in six.iteritems(definition_refs) if not refs
+            }
             if not ready:
                 msg = '$ref circular references found!\n'
                 raise ValueError(msg)
@@ -93,10 +96,9 @@ class Swagger(object):
             self._definitions += ready
 
     def search(self, path):
-        li = []
-        for p, d in dpath.util.search(self.data, list(path), True, self.separator):
-            li.append((tuple(p.split(self.separator)), d))
-        return li
+        for p, d in dpath.util.search(
+                self.data, list(path), True, self.separator):
+            yield tuple(p.split(self.separator)), d
 
     def pickle_search(self, path):
         for p, d in dpath.util.search(self.data, list(path), True,

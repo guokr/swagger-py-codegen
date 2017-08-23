@@ -39,7 +39,6 @@ Command Options:
 	-t, --template-dir              Path of your custom templates directory.
 	--spec, --specification         Generate online specification json response.
 	--ui                            Generate swagger ui.
-	-j, --jobs INTEGER              Parallel jobs for processing.
 	-tlp, --templates               gen flask/tornado/falcon templates, default flask.
 	--version                       Show current version.
 	--help                          Show this message and exit.

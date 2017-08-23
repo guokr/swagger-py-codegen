@@ -204,7 +204,7 @@ def test_swagger_ref_node():
         }
     }
     swagger = Swagger(data)
-    p = swagger.get(['definitions', 'Order', 'properties', 'products', 'items'])
+    p = swagger.get(
+        ['definitions', 'Order', 'properties', 'products', 'items'])
     assert p['properties']['name']['type'] == 'string'
-    # assert str(p) == 'DefinitionsProduct'
-    # assert repr(p) == 'DefinitionsProduct'
+    assert p['properties']['seller']['properties']['age']['type'] == 'number'

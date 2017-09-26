@@ -164,7 +164,7 @@ def test_swagger_ref_count_04():
     }
     with pytest.raises(ValueError) as excinfo:
         Swagger(data)
-        assert excinfo.type == exceptions.ValueError
+        assert excinfo.type == ValueError
 
 
 def test_swagger_ref_node():
@@ -204,7 +204,7 @@ def test_swagger_ref_node():
         }
     }
     swagger = Swagger(data)
-    p = swagger.get(['definitions', 'Order', 'properties', 'products', 'items'])
+    p = swagger.get(
+        ['definitions', 'Order', 'properties', 'products', 'items'])
     assert p['properties']['name']['type'] == 'string'
-    assert str(p) == 'DefinitionsProduct'
-    assert repr(p) == 'DefinitionsProduct'
+    assert p['properties']['seller']['properties']['age']['type'] == 'number'

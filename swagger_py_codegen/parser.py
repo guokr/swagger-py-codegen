@@ -10,9 +10,7 @@ from jsonspec.reference import resolve
 
 
 def schema_var_name(path):
-    #tuple unpacking to handle unicode
-    path_tuple=[str(w) for w in path]
-    return ''.join(map(str.capitalize, path_tuple))
+    return ''.join(map(str.capitalize, map(str, path)))
 
 
 class RefNode(dict):

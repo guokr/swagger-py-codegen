@@ -834,3 +834,57 @@ def test_normalize_08():
     assert result['visible_property'] == 'default visible property'
     assert result['additional_property01'] == {'subobject': 'test01'}
     assert result['additional_property02'] == {'subobject': 'test02'}
+
+
+def test_normalize_09():
+    from swagger_py_codegen.jsonschema import normalize
+
+    class A(object):
+        def __init__(self, visible_property):
+            self.visible_property = visible_property
+
+    schema = {
+        'additionalProperties': {},
+        'discriminator': 'response info',
+        'type': 'object',
+        'properties': {
+            'visible_property': {
+                'type': 'string',
+                'description': 'This is a property that you can see'
+            },
+            'aps': {
+                'additionalProperties': True,
+            }
+        }
+    }
+
+    data = A(visible_property='the property you see')
+    data.aps = A('aps')
+    data.additional_property1 = 'string'
+    data.additional_property2 = 123
+    data.aps.additional_property1 = 'aps.string'
+    data.aps.additional_property2 = 1234
+    result, errors = normalize(schema, data)
+    assert errors == []
+    assert result['visible_property'] == 'the property you see'
+    assert result['additional_property1'] == 'string'
+    assert result['additional_property2'] == 123
+    assert result['aps']['additional_property1'] == 'aps.string'
+    assert result['aps']['additional_property2'] == 1234
+
+    default = {
+        'visible_property': 'default visible property',
+        'additional_property01': 'test01',
+        'additional_property02': 123,
+        'aps': {
+            'additional_property01': 'aps.test01',
+            'additional_property02': 1234,
+        }
+    }
+    result, errors = normalize(schema, default)
+    assert errors == []
+    assert result['visible_property'] == 'default visible property'
+    assert result['additional_property01'] == 'test01'
+    assert result['additional_property02'] == 123
+    assert result['aps']['additional_property01'] == 'aps.test01'
+    assert result['aps']['additional_property02'] == 1234

@@ -208,7 +208,7 @@ def normalize(schema, data, required_defaults=None):
                                        message='`%s` is required' % key))
 
         additional_properties_schema = schema.get('additionalProperties', False)
-        if additional_properties_schema:
+        if additional_properties_schema is not False:
             aproperties_set = set(data.keys()) - set(result.keys())
             for pro in aproperties_set:
                 result[pro] = _normalize(additional_properties_schema, data.get(pro))
@@ -231,6 +231,8 @@ def normalize(schema, data, required_defaults=None):
             return data
 
     def _normalize(schema, data):
+        if schema is True or schema == {}:
+            return data
         if not schema:
             return None
         funcs = {

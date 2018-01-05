@@ -1,3 +1,4 @@
 tornado
 jsonschema
 six
+werkzeug

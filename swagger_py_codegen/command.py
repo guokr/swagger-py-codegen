@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from os import path
 import codecs
 try:
     import simplejson as json
@@ -7,6 +8,7 @@ except ImportError:
 from os import makedirs
 from os.path import join, exists, dirname
 
+import six
 import yaml
 import click
 
@@ -19,7 +21,13 @@ from .parser import Swagger
 from .base import Template
 
 
+def get_ref_filepath(filename, ref_file):
+    ref_file = path.normpath(path.join(path.dirname(filename), ref_file))
+    return ref_file
+
+
 def spec_load(filename):
+    spec_data = {}
     if filename.endswith('.json'):
         loader = json.load
     elif filename.endswith('.yml') or filename.endswith('.yaml'):
@@ -33,7 +41,19 @@ def spec_load(filename):
             else:
                 loader = yaml.load
     with codecs.open(filename, 'r', 'utf-8') as f:
-        return loader(f)
+        data = loader(f)
+        spec_data.update(data)
+        for field, values in six.iteritems(data):
+            if field not in ['definitions', 'parameters', 'paths']:
+                continue
+            if not isinstance(values, dict):
+                continue
+            for _field, value in six.iteritems(values):
+                if _field == '$ref' and value.endswith('.yml'):
+                    _filepath = get_ref_filepath(filename, value)
+                    field_data = spec_load(_filepath)
+                    spec_data[field] = field_data
+        return spec_data
 
 
 def write(dist, content):

@@ -1,0 +1,18 @@
+Account:
+  type: object
+  required:
+    - emailAddress
+  properties:
+    emailAddress:
+      type: string
+    installationInformation:
+      $ref: '#/definitions/InstallationInformation'
+
+
+InstallationInformation:
+  description: A collection of information that describes an instance of the application and what device it is running on.
+  properties:
+    OSType:
+      type: string
+      description:
+        Android or Apple or other

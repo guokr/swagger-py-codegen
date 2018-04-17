@@ -106,7 +106,7 @@ def print_version(ctx, param, value):
               help='Generate swagger ui.')
 @click.option('--validate',
               default=False, is_flag=True,
-              help='Generate swagger ui.')
+              help='Validate swagger file.')
 @click.option('-tlp', '--templates',
               default='flask',
               help='gen flask/tornado/falcon/sanic templates, default flask.')

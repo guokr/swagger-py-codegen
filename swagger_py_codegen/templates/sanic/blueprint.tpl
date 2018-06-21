@@ -11,7 +11,7 @@ from .validators import security
 def current_scopes(request):
     return {{ scopes_supported }}
 
-bp = Blueprint('{{ blueprint }}', __name__)
+bp = Blueprint('{{ blueprint }}', url_prefix='/{{ blueprint }}')
 
 for route in routes:
     route.pop('endpoint', None)

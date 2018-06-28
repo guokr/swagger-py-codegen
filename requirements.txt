@@ -4,3 +4,4 @@ click
 jinja2
 dpath
 PyYAML==3.12
+flex

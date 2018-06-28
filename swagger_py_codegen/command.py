@@ -12,6 +12,9 @@ import six
 import yaml
 import click
 
+import flex
+from flex.exceptions import ValidationError
+
 from ._version import __version__
 from .flask import FlaskGenerator
 from .tornado import TornadoGenerator
@@ -101,6 +104,9 @@ def print_version(ctx, param, value):
 @click.option('--ui',
               default=False, is_flag=True,
               help='Generate swagger ui.')
+@click.option('--validate',
+              default=False, is_flag=True,
+              help='Validate swagger file.')
 @click.option('-tlp', '--templates',
               default='flask',
               help='gen flask/tornado/falcon/sanic templates, default flask.')
@@ -109,9 +115,15 @@ def print_version(ctx, param, value):
               help='Show current version.')
 def generate(destination, swagger_doc, force=False, package=None,
              template_dir=None, templates='flask',
-             specification=False, ui=False):
+             specification=False, ui=False, validate=False):
     package = package or destination.replace('-', '_')
     data = spec_load(swagger_doc)
+    if validate:
+        try:
+            flex.core.parse(data)
+            click.echo("Validation passed")
+        except ValidationError as e:
+            raise click.ClickException(str(e))
     swagger = Swagger(data)
     if templates == 'tornado':
         generator = TornadoGenerator(swagger)

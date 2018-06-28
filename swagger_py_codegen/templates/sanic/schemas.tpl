@@ -3,6 +3,7 @@
 # TODO: datetime support
 
 {% include '_do_not_change.tpl' %}
+import six
 
 base_path = '{{base_path}}'
 

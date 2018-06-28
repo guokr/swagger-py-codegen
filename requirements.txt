@@ -3,4 +3,4 @@ json-spec
 click
 jinja2
 dpath
-PyYAML
+PyYAML==3.12

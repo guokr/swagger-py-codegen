@@ -100,8 +100,8 @@ class Swagger(object):
             }
             if not ready:
                 continue
-                msg = '$ref circular references found!\n'
-                raise ValueError(msg)
+                #msg = '$ref circular references found!\n'
+                #raise ValueError(msg)
             for definition in ready:
                 del definition_refs[definition]
             for refs in six.itervalues(definition_refs):

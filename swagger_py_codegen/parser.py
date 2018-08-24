@@ -13,14 +13,38 @@ def schema_var_name(path):
     return ''.join(map(str.capitalize, map(str, path)))
 
 
-class RefNode(dict):
+class RefNode(object):
 
     def __init__(self, data, ref):
         self.ref = ref
-        super(RefNode, self).__init__(data)
+        self._data = data
+
+    def __getitem__(self, key):
+        return self._data.__getitem__(key)
+
+    def __settiem__(self, key, value):
+        return self._data.__settiem__(key, value)
+
+    def get(self, key, default=None):
+        return self._data.get(key, default)
+
+    def has(self, key, default=None):
+        return self._data.has(key)
+
+    def keys(self):
+        return self._data.keys()
+
+    def __iter__(self):
+        return self._data.__iter__()
 
     def __repr__(self):
-        return schema_var_name(self.ref)
+        return repr({'$ref':self.ref})
+
+    def __eq__(self, other):
+        if isinstance(other, RefNode):
+            return self._data == other._data and self.ref == other.ref
+        else:
+            super(RefNode,self).__eq__(other)
 
 
 class Swagger(object):
@@ -40,14 +64,10 @@ class Swagger(object):
         """
         resolve all references util no reference exists
         """
-        while 1:
-            li = list(self.search(['**', '$ref']))
-            if not li:
-                break
-            for path, ref in li:
-                data = resolve(self.data, ref)
-                path = path[:-1]
-                self.set(path, data)
+        for path, ref  in self.search(['**', '$ref']):
+            data = resolve(self.data, ref)
+            path = path[:-1]
+            self.set(path, RefNode(data, ref))
 
     def _resolve_definitions(self):
         """
@@ -76,9 +96,10 @@ class Swagger(object):
         while definition_refs:
             ready = {
                 definition for definition, refs
-                in six.iteritems(definition_refs) if not refs
+                in six.iteritems(definition_refs)
             }
             if not ready:
+                continue
                 msg = '$ref circular references found!\n'
                 raise ValueError(msg)
             for definition in ready:
@@ -87,6 +108,7 @@ class Swagger(object):
                 refs.difference_update(ready)
 
             self._definitions += ready
+        self._definitions.sort(key=lambda x :x[1])
 
     def search(self, path):
         for p, d in dpath.util.search(

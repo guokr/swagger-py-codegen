@@ -44,7 +44,7 @@ class RefNode(object):
         if isinstance(other, RefNode):
             return self._data == other._data and self.ref == other.ref
         else:
-            super(RefNode,self).__eq__(other)
+            return object.__eq__(other)
 
 
 class Swagger(object):

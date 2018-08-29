@@ -11,13 +11,13 @@ import six
 from functools import wraps
 from jsonschema import Draft4Validator
 
-from .schemas import validators, scopes, normalize, filters
+from .schemas import validators, scopes, resolver, normalize, filters
 
 
 class ValidatorAdaptor(object):
 
     def __init__(self, schema):
-        self.validator = Draft4Validator(schema)
+        self.validator = Draft4Validator(schema, resolver=resolver)
 
     def validate_number(self, type_, value):
         try:
@@ -66,7 +66,7 @@ class ValidatorAdaptor(object):
     def validate(self, value):
         value = self.type_convert(value)
         errors = list(e.message for e in self.validator.iter_errors(value))
-        return normalize(self.validator.schema, value)[0], errors
+        return normalize(self.validator.schema, value, resolver=resolver)[0], errors
 
 def request_validate(obj):
     def _request_validate(view):
@@ -134,10 +134,10 @@ def response_filter(obj):
                     raise tornado.web.HTTPError(
                         500, message='`%d` is not a defined status code.' % status)
 
-                resp, errors = normalize(schemas['schema'], resp)
+                resp, errors = normalize(schemas['schema'], resp, resolver=resolver)
                 if schemas['headers']:
                     headers, header_errors = normalize(
-                        {'properties': schemas['headers']}, headers)
+                        {'properties': schemas['headers']}, headers, resolver=resolver)
                     errors.extend(header_errors)
                 if errors:
                     raise tornado.web.HTTPError(

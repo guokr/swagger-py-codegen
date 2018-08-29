@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+import pytest
 from swagger_py_codegen.parser import Swagger
 
 
@@ -23,8 +24,8 @@ def test_swagger_ref_count_01():
         }
     }
     swagger = Swagger(data)
-    assert swagger.definitions[0] == ('definitions', 'Product')
-    assert swagger.definitions[1] == ('definitions', 'User')
+    assert swagger.definitions[0] == ('definitions', 'User')
+    assert swagger.definitions[1] == ('definitions', 'Product')
 
 
 def test_swagger_ref_count_02():
@@ -64,9 +65,9 @@ def test_swagger_ref_count_02():
         }
     }
     swagger = Swagger(data)
-    assert swagger.definitions[0] == ('definitions', 'Order')
+    assert swagger.definitions[0] == ('definitions', 'User')
     assert swagger.definitions[1] == ('definitions', 'Product')
-    assert swagger.definitions[2] == ('definitions', 'User')
+    assert swagger.definitions[2] == ('definitions', 'Order')
 
 
 def test_swagger_ref_count_03():
@@ -113,10 +114,10 @@ def test_swagger_ref_count_03():
         }
     }
     swagger = Swagger(data)
-    assert swagger.definitions[0] == ('definitions', 'Order')
-    assert swagger.definitions[1] == ('definitions', 'OrderList')
-    assert swagger.definitions[2] == ('definitions', 'Product')
-    assert swagger.definitions[3] == ('definitions', 'User')
+    assert swagger.definitions[0] == ('definitions', 'User')
+    assert swagger.definitions[1] == ('definitions', 'Product')
+    assert swagger.definitions[2] == ('definitions', 'Order')
+    assert swagger.definitions[3] == ('definitions', 'OrderList')
 
 
 def test_swagger_ref_count_04():
@@ -161,7 +162,9 @@ def test_swagger_ref_count_04():
             }
         }
     }
-    Swagger(data)
+    with pytest.raises(ValueError) as excinfo:
+        Swagger(data)
+        assert excinfo.type == ValueError
 
 
 def test_swagger_ref_node():

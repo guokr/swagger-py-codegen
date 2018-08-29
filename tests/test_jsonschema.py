@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-from swagger_py_codegen.parser import Swagger, RefNode
+from swagger_py_codegen.parser import Swagger
 from swagger_py_codegen.jsonschema import build_data
 
 
@@ -7,7 +7,7 @@ def test_schema_base_01():
     data = {}
     swagger = Swagger(data)
     data = build_data(swagger)
-    assert len(data['definitions']['definitions']) == 0
+    assert len(data['schemas']) == 0
 
 
 def test_schema_base_02():
@@ -23,7 +23,7 @@ def test_schema_base_02():
     }
     swagger = Swagger(data)
     data = build_data(swagger)
-    assert len(data['definitions']['definitions']) == 1
+    assert len(data['schemas']) == 1
 
 
 def test_schema_base_03():
@@ -41,7 +41,7 @@ def test_schema_base_03():
     }
     swagger = Swagger(data)
     data = build_data(swagger)
-    assert len(data['definitions']['definitions']) == 0
+    assert len(data['schemas']) == 0
 
 
 def test_schema_ref_01():
@@ -66,8 +66,8 @@ def test_schema_ref_01():
     }
     swagger = Swagger(data)
     data = build_data(swagger)
-    print("!!!!!!!!!!!!!!!!!!", data['definitions']['definitions'])
-    assert len(data['definitions']['definitions']) == 2
+    assert len(data['schemas']) == 2
+    assert list(data['schemas'].keys())[0] == 'DefinitionsUser'
 
 
 def test_validators():
@@ -116,13 +116,13 @@ def test_validators():
     }
     swagger = Swagger(data)
     data = build_data(swagger)
-    schemas = data['definitions']['definitions']
+    schemas = data['schemas']
     validators = data['validators']
 
     # body parameters
     assert ('/users', 'POST') in validators
     v1 = validators[('/users', 'POST')]['body']
-    assert(v1 == RefNode(schemas['User'], '#/definitions/User'))
+    assert v1 == schemas['DefinitionsUser']
 
     # query parameters
     v2 = validators[('/users', 'POST')]['query']
@@ -136,8 +136,8 @@ def test_validators():
     assert 'path' not in validators[('/users', 'POST')]
 
     # definitions
-    assert 'User' in schemas
-    assert 'Product' in schemas
+    assert 'DefinitionsUser' in schemas
+    assert 'DefinitionsProduct' in schemas
 
     assert len(schemas) == 2
 
@@ -192,7 +192,7 @@ def test_filters():
     }
     swagger = Swagger(data)
     data = build_data(swagger)
-    definitions = data['definitions']['definitions']
+    schemas = data['schemas']
     filters = data['filters']
 
     assert 201 in filters[('/users', 'POST')]
@@ -201,7 +201,7 @@ def test_filters():
     r1 = filters[('/users', 'POST')][201]
     r2 = filters[('/users', 'POST')][422]
 
-    assert r1['schema'] == RefNode(definitions['User'], '#/definitions/User')
+    assert r1['schema'] == schemas['DefinitionsUser']
     assert r2['schema']['properties']['code'] == {'type': 'string'}
 
 

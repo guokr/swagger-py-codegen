@@ -5,7 +5,7 @@ from collections import OrderedDict
 from inspect import getsource
 
 from .base import Code, CodeGenerator
-from .parser import RefNode
+from .parser import schema_var_name
 
 
 class Schema(Code):
@@ -89,8 +89,10 @@ def build_data(swagger):
                 scopes[(endpoint, method)] = list(security.values()).pop()
                 break
 
+    schemas = OrderedDict([(schema_var_name(path), swagger.get(path)) for path in swagger.definitions])
+
     data = dict(
-        definitions={'definitions':swagger.origin_data.get('definitions', {})},
+        schemas=schemas,
         validators=validators,
         filters=filters,
         scopes=scopes,
@@ -107,7 +109,7 @@ class SchemaGenerator(CodeGenerator):
         yield Schema(build_data(self.swagger))
 
 
-def merge_default(schema, value, get_first=True, resolver=None):
+def merge_default(schema, value, get_first=True):
     # TODO: more types support
     type_defaults = {
         'integer': 9573,
@@ -117,17 +119,17 @@ def merge_default(schema, value, get_first=True, resolver=None):
         'boolean': False
     }
 
-    results = normalize(schema, value, type_defaults, resolver=resolver)
+    results = normalize(schema, value, type_defaults)
     if get_first:
         return results[0]
     return results
 
 
-def build_default(schema, resolver=None):
-    return merge_default(schema, None, resolver=resolver)
+def build_default(schema):
+    return merge_default(schema, None)
 
 
-def normalize(schema, data, required_defaults=None, resolver=None):
+def normalize(schema, data, required_defaults=None):
     if required_defaults is None:
         required_defaults = {}
     errors = []
@@ -215,7 +217,7 @@ def normalize(schema, data, required_defaults=None, resolver=None):
 
     def _normalize_list(schema, data):
         result = []
-        if hasattr(data, '__iter__') and not isinstance(data, (dict, RefNode)):
+        if hasattr(data, '__iter__') and not isinstance(data, dict):
             for item in data:
                 result.append(_normalize(schema.get('items'), item))
         elif 'default' in schema:
@@ -228,15 +230,6 @@ def normalize(schema, data, required_defaults=None, resolver=None):
         else:
             return data
 
-    def _normalize_ref(schema, data):
-        if resolver == None:
-            raise TypeError("resolver must be provided")
-        ref = schema.get(u"$ref")
-        scope, resolved = resolver.resolve(ref)
-        return _normalize(resolved, data)
-
-
-
     def _normalize(schema, data):
         if schema is True or schema == {}:
             return data
@@ -246,13 +239,10 @@ def normalize(schema, data, required_defaults=None, resolver=None):
             'object': _normalize_dict,
             'array': _normalize_list,
             'default': _normalize_default,
-            'ref': _normalize_ref
         }
         type_ = schema.get('type', 'object')
         if type_ not in funcs:
             type_ = 'default'
-        if schema.get(u'$ref', None):
-            type_ = 'ref'
 
         return funcs[type_](schema, data)
 

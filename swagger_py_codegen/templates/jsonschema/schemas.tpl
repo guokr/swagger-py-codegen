@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 
 import six
-from jsonschema import RefResolver
-from swagger_py_codegen.parser import RefNode
 
 # TODO: datetime support
-
 
 {% include '_do_not_change.tpl' %}
 
 base_path = '{{base_path}}'
 
-definitions = {{ definitions }}
+{% for name, value in schemas.items() %}
+{{ name }} = {{ value }}
+{%- endfor %}
 
 validators = {
 {%- for name, value in validators.items() %}
@@ -31,7 +30,6 @@ scopes = {
 {%- endfor %}
 }
 
-resolver = RefResolver.from_schema(definitions)
 
 class Security(object):
 

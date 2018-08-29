@@ -19,20 +19,15 @@ class RefNode(object):
         self.ref = ref
         self._data = data
 
+
     def __getitem__(self, key):
         return self._data.__getitem__(key)
 
-    def __settiem__(self, key, value):
-        return self._data.__settiem__(key, value)
+    def __setitem__(self, key, value):
+        return self._data.__setitem__(key, value)
 
-    def get(self, key, default=None):
-        return self._data.get(key, default)
-
-    def has(self, key, default=None):
-        return self._data.has(key)
-
-    def keys(self):
-        return self._data.keys()
+    def __getattr__(self, key):
+        return self._data.__getattribute__(key)
 
     def __iter__(self):
         return self._data.__iter__()
@@ -46,6 +41,8 @@ class RefNode(object):
         else:
             return object.__eq__(other)
 
+    def copy(self):
+        return RefNode(self._data, self.ref)
 
 class Swagger(object):
 

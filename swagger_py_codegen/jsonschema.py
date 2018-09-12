@@ -71,7 +71,7 @@ def build_data(swagger):
             method = p[-1].upper()
             # parameters as schema
             validator = dict(_parameters_to_schemas(path_param + method_param, endpoint, method))
-            print 'parameters:::::::::::::', path_param, endpoint, method, validator, method_param
+            #print 'parameters:::::::::::::', path_param, endpoint, method, validator, method_param
             if validator:
                 validators[(endpoint, method)] = validator
 

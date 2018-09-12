@@ -58,6 +58,7 @@ def load_file(filename, spec_data):
             if not isinstance(values, dict):
                 continue
             for _field, value in six.iteritems(values):
+                #print _field,'\n'
                 # _field is the endpoint for paths when the api of paths contains $ref
                 if _field == '$ref' and value.endswith('.yml'):
                     _filepath = get_ref_filepath(filename, value)
@@ -172,7 +173,7 @@ def generate(destination, swagger_doc, force=False, package=None,
             click.echo("Validation passed")
         except ValidationError as e:
             raise click.ClickException(str(e))
-    print 'data             ',data
+    #print 'data             ',data
     swagger = Swagger(data)
     if templates == 'tornado':
         generator = TornadoGenerator(swagger)

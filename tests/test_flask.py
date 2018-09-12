@@ -89,7 +89,6 @@ def test_swagger_to_flask_url():
     ]
     for case in cases:
         a = _swagger_to_flask_url(case['url'], case['data'])
-        print a, case['expect']
         assert a == case['expect']
 
 

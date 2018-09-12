@@ -3,7 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="f1ce8014-44a4-4be4-a6d0-343bab077126" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swagger_py_codegen/flask.py" beforeDir="false" afterPath="$PROJECT_DIR$/swagger_py_codegen/flask.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swagger_py_codegen/command.py" beforeDir="false" afterPath="$PROJECT_DIR$/swagger_py_codegen/command.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swagger_py_codegen/jsonschema.py" beforeDir="false" afterPath="$PROJECT_DIR$/swagger_py_codegen/jsonschema.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/test_flask.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_flask.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -26,23 +27,23 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="754" />
+          <entry key="py" value="797" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="754" />
+          <entry key="Python" value="797" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="py" value="8" />
+          <entry key="py" value="9" />
           <entry key="yml" value="12" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Python" value="8" />
+          <entry key="Python" value="9" />
           <entry key="YAML" value="12" />
         </counts>
       </usages-collector>
@@ -78,7 +79,7 @@
         <entry file="file://$PROJECT_DIR$/swagger_py_codegen/flask.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="289">
-              <caret line="60" column="39" lean-forward="true" selection-start-line="60" selection-start-column="39" selection-end-line="60" selection-end-column="39" />
+              <caret line="60" column="39" selection-start-line="60" selection-start-column="39" selection-end-line="60" selection-end-column="39" />
             </state>
           </provider>
         </entry>
@@ -87,15 +88,25 @@
         <entry file="file://$PROJECT_DIR$/tests/test_flask.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="808">
-              <caret line="131" column="27" selection-start-line="131" selection-start-column="27" selection-end-line="131" selection-end-column="27" />
+              <caret line="130" column="27" selection-start-line="130" selection-start-column="27" selection-end-line="130" selection-end-column="27" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/swagger_py_codegen/command.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="467">
+              <caret line="50" column="50" lean-forward="true" selection-start-line="50" selection-start-column="50" selection-end-line="50" selection-end-column="50" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tests/test_jsonschema.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1119">
+            <state relative-caret-position="848">
+              <caret line="116" column="18" selection-start-line="116" selection-start-column="18" selection-end-line="116" selection-end-column="18" />
               <folding>
                 <element signature="e#0#38#0" expanded="true" />
               </folding>
@@ -135,6 +146,7 @@
       <find>data['schemas']</find>
       <find>test_swagger_to_flask_url</find>
       <find>_swagger_to_flask_url</find>
+      <find>print</find>
     </findStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$/tests</dir>
@@ -157,10 +169,10 @@
         <option value="$PROJECT_DIR$/swagger_py_codegen/tornado.py" />
         <option value="$PROJECT_DIR$/tests/test_tornado.py" />
         <option value="$PROJECT_DIR$/swagger_py_codegen/templates/flask/validators.tpl" />
-        <option value="$PROJECT_DIR$/swagger_py_codegen/command.py" />
         <option value="$PROJECT_DIR$/swagger_py_codegen/jsonschema.py" />
         <option value="$PROJECT_DIR$/swagger_py_codegen/flask.py" />
         <option value="$PROJECT_DIR$/tests/test_flask.py" />
+        <option value="$PROJECT_DIR$/swagger_py_codegen/command.py" />
       </list>
     </option>
   </component>
@@ -171,6 +183,7 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="1" />
     <option name="y" value="23" />
     <option name="width" value="2560" />
     <option name="height" value="1337" />
@@ -191,7 +204,7 @@
             <path>
               <item name="swagger-py-codegen" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
               <item name="" type="442cc68d:ScopeViewTreeModel$RootNode" />
-              <item name="tests" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="swagger_py_codegen" type="9f88c78c:ScopeViewTreeModel$FileNode" />
             </path>
           </expand>
           <select />
@@ -423,13 +436,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/swagger_py_codegen/command.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-392">
-          <caret line="114" column="24" selection-start-line="114" selection-start-column="24" selection-end-line="114" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/swagger_py_codegen/jsonschema.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="476">
@@ -460,23 +466,31 @@
     <entry file="file://$PROJECT_DIR$/swagger_py_codegen/flask.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="289">
-          <caret line="60" column="39" lean-forward="true" selection-start-line="60" selection-start-column="39" selection-end-line="60" selection-end-column="39" />
+          <caret line="60" column="39" selection-start-line="60" selection-start-column="39" selection-end-line="60" selection-end-column="39" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/tests/test_flask.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="808">
-          <caret line="131" column="27" selection-start-line="131" selection-start-column="27" selection-end-line="131" selection-end-column="27" />
+          <caret line="130" column="27" selection-start-line="130" selection-start-column="27" selection-end-line="130" selection-end-column="27" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/tests/test_jsonschema.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1119">
+        <state relative-caret-position="848">
+          <caret line="116" column="18" selection-start-line="116" selection-start-column="18" selection-end-line="116" selection-end-column="18" />
           <folding>
             <element signature="e#0#38#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/swagger_py_codegen/command.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="467">
+          <caret line="50" column="50" lean-forward="true" selection-start-line="50" selection-start-column="50" selection-end-line="50" selection-end-column="50" />
         </state>
       </provider>
     </entry>

@@ -8,22 +8,24 @@ from swagger_py_codegen.flask import (
     FlaskGenerator
 )
 
+
 def test_swagger_to_flask_url():
     cases = [
         {
             'url': '/users/{id}',
             'data': {
-                'parameters': [{
-                    'name': 'id',
-                    'in': 'path',
-                    'type': 'integer'
-                }],
                 'get': {
                     'parameters': [{
                         'name': 'limit',
                         'in': 'query',
                         'type': 'integer'
-                    }]
+                    },
+                        {
+                            'name': 'id',
+                            'in': 'path',
+                            'type': 'integer'
+                        }
+                    ]
                 },
                 'post': {
                     'parameters': [{
@@ -34,7 +36,13 @@ def test_swagger_to_flask_url():
                                 'name': {'type': 'string'}
                             }
                         }
-                    }]
+                    },
+                        {
+                            'name': 'id',
+                            'in': 'path',
+                            'type': 'integer'
+                        }
+                    ]
                 }
             },
             'expect': (
@@ -58,13 +66,12 @@ def test_swagger_to_flask_url():
                         'name': 'price',
                         'in': 'path',
                         'type': 'float'
+                    }, {
+                        'name': 'category',
+                        'in': 'path',
+                        'type': 'integer'
                     }]
                 },
-                'parameters': [{
-                    'name': 'category',
-                    'in': 'path',
-                    'type': 'integer'
-                }]
             },
             'expect': (
                 '/goods/categories/<int:category>/price-large-than/<float:price>/order-by/<order>',
@@ -81,7 +88,9 @@ def test_swagger_to_flask_url():
         }
     ]
     for case in cases:
-        assert _swagger_to_flask_url(case['url'], case['data']) == case['expect']
+        a = _swagger_to_flask_url(case['url'], case['data'])
+        print a, case['expect']
+        assert a == case['expect']
 
 
 def test_path_to_endpoint():
@@ -121,7 +130,6 @@ def test_process_data():
                 'get': {},
                 'put': {},
                 'head': {},
-                'parameters': []
             },
             '/posts/{post_id}': {
                 'get': {

@@ -77,13 +77,13 @@ def _swagger_to_flask_url(url, swagger_path_node):
             if t in types:
                 yield '<%s>' % p['name'], '<%s:%s>' % (types[t], p['name'])
 
-    for method, params in six.iteritems(node):
-        for old, new in _type(node.get('parameters', [])):
+    for method, param in six.iteritems(node):
+        for old, new in _type(param.get('parameters', [])):
             url = url.replace(old, new)
 
         for k in SUPPORT_METHODS:
-            if k in node:
-                for old, new in _type(node[k].get('parameters', [])):
+            if k in param:
+                for old, new in _type(param[k].get('parameters', [])):
                     url = url.replace(old, new)
 
     return url, params

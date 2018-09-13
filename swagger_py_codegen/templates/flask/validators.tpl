@@ -66,6 +66,8 @@ class FlaskValidatorAdaptor(object):
                 if not ref:
                     continue
                 type_ = self.validator.resolver.resolve(prop.get('$ref'))[1].get('type')
+                if not type_:
+                    continue
             fun = convert_funs.get(type_, lambda v: v[0])
             if type_ == 'array':
                 item_type = prop.get('items', {}).get('type')

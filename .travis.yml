@@ -1,18 +1,18 @@
 language: python
 python:
-    - "2.7"
-    - "3.5"
+- '2.7'
+- '3.5'
 install:
-    - python setup.py install
+- python setup.py install
 before_script:
-    - pip install pytest
+- pip install pytest
 script: py.test
 deploy:
-    provider: pypi
-    user: rejown
-    password:
-        secure: "K6eW3+2aB0vc5BRFw9NmrN7jqTdFID5/AsmXlOfPDfFtdkoRKH4bFZxW22qXQ40Kn5qygWOUlymh1Z1/kb0W0HVInjOIz7NekSyjHlIMLAa9S/bj0ydOoh6wLBBD5SQbtnO7yC2ARtnQ1OEPR2IosqYYNfhXRvnyp0GLHRb14KYQmCnwvAW7JzWPPs8jniJHqir78XmpwhvxD2u3ObjtTpFey6lRzQ1EaWdGWumJmlwooDI+rbJ5DSs/+sPK239ujLHZsiIPZOivlVdwL1S/wErV0TFOZcCNTNJ04dquC7tns8MqxDCz6Rb/9TG4TgevpShp8jTXIaV89dPptDKX3aa9zMXpBf09jiAagjwnvBwbUaNqdUsRCzgw4MFKRzWv1JTqSuHdPM1cU4BRRIVgOvPoLknZJo/thhdtw0Torff63RjVRWAt9bwx0VpMGiovI3ny6cXKSqMmthWOjAWdxcmp0dAXcBH5TP7+LaxDPoPBYwhU2Hd2DP6AZ39yZ9WzApaOvtbIy6wBqvaCDY/sdi6nKjQwMvy/TamKR96/w1BAX6YME3IjKjmZRsiQlEFZckxWQjIqj+/odTHhiqwt3a/7jko5gPVGjPUTA1V2x9W7MEgFyW90JuYud/2BlkKgVyQKjBwRaa99cMLQtmpEmctv1LD/KI0KAKrp3Eql2Xo="
-on:
+  provider: pypi
+  user: rejown
+  password:
+    secure: FkvIXyqwI6hCnns0loaFz9IPzTL2hIYv0kZRHBxC2cERZ6lFGqo3zluR25l9DagPTIf4PY1fwBJs9GuVIdRnFurUbEXfbFQz+BGB2j55U4cENw4WWZsMjEUggMw7aVj8PU+WeAZ6flH8m07sXQ3AoHlsakYfnJtIRCBcTmIYMxY3Bsckt2vyl6gEmjEo93DN5GTJIOrlEORDmFx/iG2V6IOA2j+j09eKruHy17hIOtq7SEAGkfePl1J4vv2t8ih17jkcpgZDwiuQT+YT4SGGfldAipffBQrGixrszUICa72Q/scSDzh52SvlElBxdED17eS3rtaxLXShkWnAQQEWLLh/AyHljXV/h9wCEdnm0Pe6StxufrSVHhQDij7ti3vvJwSURoniTdWKE9p3fmOyR4abeAcAZhNPbnB6neuzrFLo3ZW+4zSXPHtin/D9qJ+8BVdZbFls18tOF1/xReTbwHe9wpm7cIzzz6XZFm6a5m+ASJEefYkxW78zyzVAk+BNW4UCzdHiUqpmwEpvSE4UM6PNlzVPOAlQywy7jgsjftvX3WeEonw/XNw1KvoX+l8QcdcjBiW5ixLFirm2lfg9njDcuUv9WrZT2FlmrUE8w0hx8FmUa9zQ7sLwuG2D2dXqCqmyv0LKuW8DLnAl4r2DUvyukBgtgOO9qTPsj3Zw58M=
+  on:
     pythoni: 2.7
     tags: true
     branch: master

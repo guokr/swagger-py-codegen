@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from os import path, listdir
 import codecs
 
+from swagger_py_codegen.jsonschema import Schema
+
 try:
     import simplejson as json
 except ImportError:

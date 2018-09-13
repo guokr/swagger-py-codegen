@@ -236,6 +236,8 @@ def normalize(schema, data, required_defaults=None, resolver=None):
             raise TypeError("resolver must be provided")
         ref = schema.get(u"$ref")
         scope, resolved = resolver.resolve(ref)
+        if resolved.get('nullable', False) and not data:
+            return {}
         return _normalize(resolved, data)
 
     def _normalize(schema, data):

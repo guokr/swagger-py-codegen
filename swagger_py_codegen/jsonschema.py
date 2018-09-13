@@ -16,7 +16,7 @@ class Schema(Code):
     override = True
 
 
-def _parameters_to_schemas(params, endpoint, method):
+def _parameters_to_schemas(params):
     locations = ['body', 'header', 'formData', 'query']
     for location in locations:
         required = []
@@ -70,7 +70,7 @@ def build_data(swagger):
             endpoint = p[1]  # p: ('paths', '/some/path', 'method')
             method = p[-1].upper()
             # parameters as schema
-            validator = dict(_parameters_to_schemas(path_param + method_param, endpoint, method))
+            validator = dict(_parameters_to_schemas(path_param + method_param))
             #print 'parameters:::::::::::::', path_param, endpoint, method, validator, method_param
             if validator:
                 validators[(endpoint, method)] = validator

@@ -19,7 +19,6 @@ class RefNode(object):
         self.ref = ref
         self._data = data
 
-
     def __getitem__(self, key):
         return self._data.__getitem__(key)
 
@@ -33,16 +32,21 @@ class RefNode(object):
         return self._data.__iter__()
 
     def __repr__(self):
-        return repr({'$ref':self.ref})
+        return repr({'$ref': self.ref})
 
     def __eq__(self, other):
         if isinstance(other, RefNode):
             return self._data == other._data and self.ref == other.ref
-        else:
+        elif six.PY2:
             return object.__eq__(other)
+        elif six.PY3:
+            return object.__eq__(self, other)
+        else:
+            return False
 
     def copy(self):
         return RefNode(self._data, self.ref)
+
 
 class Swagger(object):
 
@@ -61,7 +65,7 @@ class Swagger(object):
         """
         resolve all references util no reference exists
         """
-        for path, ref  in self.search(['**', '$ref']):
+        for path, ref in self.search(['**', '$ref']):
             data = resolve(self.data, ref)
             path = path[:-1]
             self.set(path, RefNode(data, ref))
@@ -97,15 +101,15 @@ class Swagger(object):
             }
             if not ready:
                 continue
-                #msg = '$ref circular references found!\n'
-                #raise ValueError(msg)
+                # msg = '$ref circular references found!\n'
+                # raise ValueError(msg)
             for definition in ready:
                 del definition_refs[definition]
             for refs in six.itervalues(definition_refs):
                 refs.difference_update(ready)
 
             self._definitions += ready
-        self._definitions.sort(key=lambda x :x[1])
+        self._definitions.sort(key=lambda x: x[1])
 
     def search(self, path):
         for p, d in dpath.util.search(

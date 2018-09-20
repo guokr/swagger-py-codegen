@@ -60,7 +60,6 @@ def load_file(filename, spec_data):
             if not isinstance(values, dict):
                 continue
             for _field, value in six.iteritems(values):
-                #print _field,'\n'
                 # _field is the endpoint for paths when the api of paths contains $ref
                 if _field == '$ref' and value.endswith('.yml'):
                     _filepath = get_ref_filepath(filename, value)
@@ -97,7 +96,6 @@ def modify_spec_data(field, spec_data, data):
             spec_data[field][k].update(v)
         else:
             spec_data[field][k] = v
-    # print spec_data
 
 
 def spec_load(filename):

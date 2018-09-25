@@ -7,9 +7,7 @@ import six
 
 base_path = '{{base_path}}'
 
-{% for name, value in schemas.items() %}
-{{ name }} = {{ value }}
-{%- endfor %}
+definitions = {{ definitions }}
 
 validators = {
 {%- for name, value in validators.items() %}
@@ -29,6 +27,8 @@ scopes = {
 {%- endfor %}
 }
 
+
+resolver = RefResolver.from_schema(definitions)
 
 class Current(object):
 

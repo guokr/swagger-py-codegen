@@ -10,59 +10,50 @@ SUPPORT_METHODS = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head']
 
 
 class Router(Code):
-
     template = 'flask/routers.tpl'
     dest_template = '%(package)s/%(module)s/routes.py'
     override = True
 
 
 class View(Code):
-
     template = 'flask/view.tpl'
     dest_template = '%(package)s/%(module)s/api/%(view)s.py'
     override = False
 
 
 class Specification(Code):
-
     template = 'flask/specification.tpl'
     dest_template = '%(package)s/static/%(module)s/swagger.json'
     override = True
 
 
 class Validator(Code):
-
     template = 'flask/validators.tpl'
     dest_template = '%(package)s/%(module)s/validators.py'
     override = True
 
 
 class Api(Code):
-
     template = 'flask/api.tpl'
     dest_template = '%(package)s/%(module)s/api/__init__.py'
 
 
 class Blueprint(Code):
-
     template = 'flask/blueprint.tpl'
     dest_template = '%(package)s/%(module)s/__init__.py'
 
 
 class App(Code):
-
     template = 'flask/app.tpl'
     dest_template = '%(package)s/__init__.py'
 
 
 class Requirements(Code):
-
     template = 'flask/requirements.tpl'
     dest_template = 'requirements.txt'
 
 
 class UIIndex(Code):
-
     template = 'ui/index.html'
     dest_template = '%(package)s/static/swagger-ui/index.html'
 
@@ -86,13 +77,14 @@ def _swagger_to_flask_url(url, swagger_path_node):
             if t in types:
                 yield '<%s>' % p['name'], '<%s:%s>' % (types[t], p['name'])
 
-    for old, new in _type(node.get('parameters', [])):
-        url = url.replace(old, new)
+    for method, param in six.iteritems(node):
+        for old, new in _type(param.get('parameters', [])):
+            url = url.replace(old, new)
 
-    for k in SUPPORT_METHODS:
-        if k in node:
-            for old, new in _type(node[k].get('parameters', [])):
-                url = url.replace(old, new)
+        for k in SUPPORT_METHODS:
+            if k in param:
+                for old, new in _type(param[k].get('parameters', [])):
+                    url = url.replace(old, new)
 
     return url, params
 
@@ -126,7 +118,6 @@ def _location(swagger_location):
 
 
 class FlaskGenerator(CodeGenerator):
-
     dependencies = [SchemaGenerator]
 
     def __init__(self, swagger):

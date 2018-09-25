@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+import copy
+
 import six
 from collections import OrderedDict
 from inspect import getsource
@@ -9,7 +11,6 @@ from .parser import RefNode
 
 
 class Schema(Code):
-
     template = 'jsonschema/schemas.tpl'
     dest_template = '%(package)s/%(module)s/schemas.py'
     override = True
@@ -27,8 +28,9 @@ def _parameters_to_schemas(params):
                 # schema is required `in` is `body`
                 yield location, param['schema']
                 continue
-
-            prop = param.copy()
+            # prop = param.copy()
+            # If the parameter is referanced more than once,it would be format only once.
+            prop = copy.deepcopy(param)
             prop.pop('in')
             if param.get('required'):
                 required.append(param['name'])
@@ -41,7 +43,6 @@ def _parameters_to_schemas(params):
 
 
 def build_data(swagger):
-
     validators = OrderedDict()  # (endpoint, method) = {'body': schema_name or schema, 'query': schema_name, ..}
     filters = OrderedDict()  # (endpoint, method) = {'200': {'schema':, 'headers':, 'examples':}, 'default': ..}
     scopes = OrderedDict()  # (endpoint, method) = [scope_a, scope_b]
@@ -56,9 +57,11 @@ def build_data(swagger):
 
         # methods
         for p, data in swagger.search(path + ('*',)):
+
             if p[-1] not in ['get', 'post', 'put', 'delete', 'patch', 'options', 'head']:
                 continue
             method_param = []
+
             try:
                 method_param = swagger.get(p + ('parameters',))
             except KeyError:
@@ -66,9 +69,9 @@ def build_data(swagger):
 
             endpoint = p[1]  # p: ('paths', '/some/path', 'method')
             method = p[-1].upper()
-
             # parameters as schema
             validator = dict(_parameters_to_schemas(path_param + method_param))
+            #print 'parameters:::::::::::::', path_param, endpoint, method, validator, method_param
             if validator:
                 validators[(endpoint, method)] = validator
 
@@ -88,9 +91,9 @@ def build_data(swagger):
             for security in data.get('security', []):
                 scopes[(endpoint, method)] = list(security.values()).pop()
                 break
-
     data = dict(
-        definitions={'definitions':swagger.origin_data.get('definitions', {})},
+        definitions={'definitions': swagger.origin_data.get('definitions', {}),
+                     'parameters': swagger.origin_data.get('parameters', {})},
         validators=validators,
         filters=filters,
         scopes=scopes,
@@ -194,7 +197,7 @@ def normalize(schema, data, required_defaults=None, resolver=None):
 
             # get value
             value, has_key = data.get_check(key)
-            if has_key:
+            if has_key or '$ref' in _schema:
                 result[key] = _normalize(_schema, value)
             elif 'default' in _schema:
                 result[key] = _schema['default']
@@ -233,9 +236,9 @@ def normalize(schema, data, required_defaults=None, resolver=None):
             raise TypeError("resolver must be provided")
         ref = schema.get(u"$ref")
         scope, resolved = resolver.resolve(ref)
+        if resolved.get('nullable', False) and not data:
+            return {}
         return _normalize(resolved, data)
-
-
 
     def _normalize(schema, data):
         if schema is True or schema == {}:

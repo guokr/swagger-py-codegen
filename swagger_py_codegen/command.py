@@ -1,12 +1,15 @@
 from __future__ import absolute_import
-from os import path
+from os import path, listdir
 import codecs
+
+from swagger_py_codegen.jsonschema import Schema
+
 try:
     import simplejson as json
 except ImportError:
     import json
 from os import makedirs
-from os.path import join, exists, dirname
+from os.path import join, exists, dirname, isdir
 
 import six
 import yaml
@@ -29,8 +32,7 @@ def get_ref_filepath(filename, ref_file):
     return ref_file
 
 
-def spec_load(filename):
-    spec_data = {}
+def get_loader(filename):
     if filename.endswith('.json'):
         loader = json.load
     elif filename.endswith('.yml') or filename.endswith('.yaml'):
@@ -43,8 +45,14 @@ def spec_load(filename):
                 loader = json.load
             else:
                 loader = yaml.load
+    return loader
+
+
+def load_file(filename, spec_data):
+    loader = get_loader(filename)
     with codecs.open(filename, 'r', 'utf-8') as f:
         data = loader(f)
+        # modify_spec_data(spec_data, data)
         spec_data.update(data)
         for field, values in six.iteritems(data):
             if field not in ['definitions', 'parameters', 'paths']:
@@ -52,11 +60,52 @@ def spec_load(filename):
             if not isinstance(values, dict):
                 continue
             for _field, value in six.iteritems(values):
+                # _field is the endpoint for paths when the api of paths contains $ref
                 if _field == '$ref' and value.endswith('.yml'):
                     _filepath = get_ref_filepath(filename, value)
                     field_data = spec_load(_filepath)
+                    # modify_spec_data(field, spec_data, field_data)
                     spec_data[field] = field_data
-        return spec_data
+                elif '$ref' in value:
+                    v = value.pop('$ref', '')
+                    if not v:
+                        continue
+                    _filepath = get_ref_filepath(filename, v)
+                    field_data = spec_load(_filepath)
+                    modify_spec_data(field, spec_data, field_data)
+                    # spec_data[field][_field] = field_data.values()
+
+
+def dump_file(filename, data):
+    if not filename.endswith('.yml'):
+        return None
+    if not exists(filename):
+        dirs = filename.rsplit('/', 1)[0]
+        # dirs, fn = '/'.join(paths[:-1]), paths[-1]
+        if not exists(dirs):
+            makedirs(dirs)
+    with codecs.open(filename, 'w', 'utf-8') as f:
+        yaml.dump(data, f, default_flow_style=False, allow_unicode=True)
+
+
+def modify_spec_data(field, spec_data, data):
+    if not isinstance(spec_data, dict) or not isinstance(data, dict):
+        return None
+    for k, v in data.items():
+        if k in spec_data[field]:
+            spec_data[field][k].update(v)
+        else:
+            spec_data[field][k] = v
+
+
+def spec_load(filename):
+    spec_data = {}
+    files = listdir(filename) if isdir(filename) else [filename]
+    for f in files:
+        if f != filename:
+            f = filename + '/' + f
+        load_file(f, spec_data)
+    return spec_data
 
 
 def write(dist, content):
@@ -124,6 +173,7 @@ def generate(destination, swagger_doc, force=False, package=None,
             click.echo("Validation passed")
         except ValidationError as e:
             raise click.ClickException(str(e))
+    #print 'data             ',data
     swagger = Swagger(data)
     if templates == 'tornado':
         generator = TornadoGenerator(swagger)

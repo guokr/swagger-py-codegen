@@ -1,6 +1,6 @@
 six
 json-spec
-click
+click<7
 jinja2
 dpath
 PyYAML==3.12

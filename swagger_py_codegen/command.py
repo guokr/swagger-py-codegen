@@ -139,7 +139,7 @@ def print_version(ctx, param, value):
 
 @click.command()
 @click.argument('destination', required=True)
-@click.option('-s', '--swagger', '--swagger-doc',
+@click.option('-s', '--swagger-doc',
               required=True, help='Swagger doc file.')
 @click.option('-f', '--force',
               default=False, is_flag=True, help='Force overwrite.')

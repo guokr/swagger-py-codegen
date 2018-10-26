@@ -33,7 +33,7 @@ swagger_py_codegen --swagger-doc api.yml example-app
 
 Command Options:
 
-	-s, --swagger, --swagger-doc    Swagger doc file.  [required]
+	-s, --swagger-doc               Swagger doc file.  [required]
 	-f, --force                     Force overwrite.
 	-p, --package                   Package name / application name.
 	-t, --template-dir              Path of your custom templates directory.

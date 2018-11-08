@@ -33,6 +33,14 @@ def _path_to_endpoint(path):
     return _remove_characters(endpoint, '{}')
 
 
+class Current(object):
+
+    request = None
+
+
+current = Current()
+
+
 class JSONEncoder(json.JSONEncoder):
 
     def default(self, o):
@@ -92,11 +100,12 @@ class FalconValidatorAdaptor(object):
 
 def request_validate(req, resp, resource, params):
 
+    current.request = req
     endpoint = _path_to_endpoint(req.uri_template)
     # scope
     if (endpoint, req.method) in scopes and not set(
             scopes[(endpoint, req.method)]).issubset(set(security.scopes)):
-        falcon.HTTPUnauthorized('403403403')
+        raise falcon.HTTPUnauthorized('invalid client')
     # data
     method = req.method
     if method == 'HEAD':
@@ -113,11 +122,11 @@ def request_validate(req, resp, resource, params):
             try:
                 value = json.loads(body.decode('utf-8'))
             except (ValueError, UnicodeDecodeError):
-                raise falcon.HTTPError(falcon.HTTP_753,
-                                       'Malformed JSON',
-                                       'Could not decode the request body. The '
-                                       'JSON was incorrect or not encoded as '
-                                       'UTF-8.')
+                raise falcon.HTTPUnprocessableEntity(
+                    'Malformed JSON',
+                    'Could not decode the request body. The '
+                    'JSON was incorrect or not encoded as '
+                    'UTF-8.')
         if value is None:
             value = MultiDict()
         validator = FalconValidatorAdaptor(schema)

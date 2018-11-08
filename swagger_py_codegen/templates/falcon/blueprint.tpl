@@ -4,7 +4,7 @@ from __future__ import absolute_import, print_function
 import falcon
 
 from .routes import routes
-from .validators import security
+from .validators import security, current
 
 
 @security.scopes_loader

@@ -45,7 +45,7 @@ class RefNode(object):
             return False
 
     def __deepcopy__(self, memo):
-        return RefNode(self._data, self.ref)
+        return RefNode(copy.deepcopy(self._data), self.ref)
 
     def copy(self):
         return RefNode(self._data, self.ref)

@@ -15,8 +15,8 @@ import six
 import yaml
 import click
 
-import flex
-from flex.exceptions import ValidationError
+from swagger_spec_validator import SwaggerValidationError
+from swagger_spec_validator.validator20 import validate_spec
 
 from ._version import __version__
 from .flask import FlaskGenerator
@@ -169,9 +169,9 @@ def generate(destination, swagger_doc, force=False, package=None,
     data = spec_load(swagger_doc)
     if validate:
         try:
-            flex.core.parse(data)
+            validate_spec(data)
             click.echo("Validation passed")
-        except ValidationError as e:
+        except SwaggerValidationError as e:
             raise click.ClickException(str(e))
     #print 'data             ',data
     swagger = Swagger(data)

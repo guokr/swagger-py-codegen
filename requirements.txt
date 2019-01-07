@@ -3,5 +3,6 @@ json-spec
 click<7
 jinja2
 dpath
-PyYAML==3.12
-flex
+jsonschema==2.6.0
+PyYAML==4.2b1
+swagger_spec_validator

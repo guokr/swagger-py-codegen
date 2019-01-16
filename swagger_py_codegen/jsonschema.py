@@ -197,7 +197,9 @@ def normalize(schema, data, required_defaults=None, resolver=None):
 
             # get value
             value, has_key = data.get_check(key)
-            if has_key or '$ref' in _schema:
+            if has_key and '$ref' in _schema:
+                result[key] = _normalize(_schema, value)
+            elif has_key:
                 result[key] = _normalize(_schema, value)
             elif 'default' in _schema:
                 result[key] = _schema['default']

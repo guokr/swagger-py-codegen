@@ -9,7 +9,11 @@ class {{ name }}(ApiHandler):
 
     {%- for method, ins in methods.items() %}
 
+    {% if use_async -%}
+    async def {{ method.lower() }}(self{{ params.__len__() and ', ' or '' }}{{ params | join(', ') }}):
+    {%- else -%}
     def {{ method.lower() }}(self{{ params.__len__() and ', ' or '' }}{{ params | join(', ') }}):
+    {%- endif %}
         {%- for request in ins.requests %}
         print(self.{{ request }})
         {%- endfor %}

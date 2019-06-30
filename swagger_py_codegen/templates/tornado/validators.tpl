@@ -109,8 +109,13 @@ def request_validate(obj):
 def response_filter(obj):
     def _response_filter(view):
         @wraps(view)
+        {% if not use_async -%}
         def wrapper(*args, **kwargs):
             resp = view(*args, **kwargs)
+        {%- else -%}
+        async def wrapper(*args, **kwargs):
+            resp = await view(*args, **kwargs)
+        {%- endif %}
             request = obj.request
             endpoint = obj.endpoint
             method = request.method

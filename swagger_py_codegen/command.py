@@ -162,9 +162,11 @@ def print_version(ctx, param, value):
 @click.option('--version', is_flag=True, callback=print_version,
               expose_value=False, is_eager=True,
               help='Show current version.')
+@click.option('-a', '--use-async', default=False, is_flag=True,
+              help='Generate async request handlers (tornado)')
 def generate(destination, swagger_doc, force=False, package=None,
              template_dir=None, templates='flask',
-             specification=False, ui=False, validate=False):
+             specification=False, ui=False, validate=False, use_async=False):
     package = package or destination.replace('-', '_')
     data = spec_load(swagger_doc)
     if validate:
@@ -198,6 +200,7 @@ def generate(destination, swagger_doc, force=False, package=None,
         click.secho('%-12s%s' % (status, ui_dest))
 
     for code in generator.generate():
+        code.data['use_async'] = use_async
         source = template.render_code(code)
         dest = join(destination, code.dest(env))
         dest_exists = exists(dest)

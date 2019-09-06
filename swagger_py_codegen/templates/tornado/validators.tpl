@@ -151,7 +151,8 @@ def response_filter(obj):
                         reason=json.dumps(errors))
             obj.set_status(status)
             obj.set_headers(headers)
-            obj.write(json.dumps(resp))
+            if resp:
+                obj.write(json.dumps(resp))
             return
         return wrapper
     return _response_filter

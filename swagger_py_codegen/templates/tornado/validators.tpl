@@ -88,7 +88,8 @@ def request_validate(obj):
                 if location == 'json':
                     value = getattr(request, 'body', MultiDict())
                 elif location == 'args':
-                    value = getattr(request, 'query_arguments', MultiDict())
+                    value = {key: list(map(obj.decode_argument, value)) for key, value in
+                             request.query_arguments.items()}
                     for k,v in six.iteritems(value):
                         if isinstance(v, list) and len(v) == 1:
                             value[k] = v[0]

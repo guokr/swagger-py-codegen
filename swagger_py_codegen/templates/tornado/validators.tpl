@@ -29,7 +29,7 @@ class ValidatorAdaptor(object):
         if obj is None or not obj:
             return None
         if six.PY3:
-            if isinstance(obj, str):
+            if isinstance(obj, str) or isinstance(obj, bytes):
                 obj = MultiDict(json.loads(obj))
         else:
             if isinstance(obj, (str, unicode, basestring)):

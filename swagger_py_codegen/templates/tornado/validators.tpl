@@ -63,11 +63,11 @@ class ValidatorAdaptor(object):
             return [func([i]) for i in v]
 
         for k, values in obj.lists():
-            obj = self.validator.schema
-            if '$ref' in obj:
-                obj = self.get_ref_obj(obj['$ref'])
+            schema = self.validator.schema
+            if '$ref' in schema:
+                schema = self.get_ref_obj(schema['$ref'])
 
-            prop = obj['properties'].get(k, {})
+            prop = schema['properties'].get(k, {})
             type_ = prop.get('type')
             fun = convert_funs.get(type_, lambda v: v[0])
             if type_ == 'array':

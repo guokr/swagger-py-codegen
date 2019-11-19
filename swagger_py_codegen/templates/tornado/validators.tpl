@@ -11,7 +11,7 @@ import six
 from functools import wraps
 from jsonschema import Draft4Validator
 
-from .schemas import validators, scopes, resolver, normalize, filters
+from .schemas import definitions, validators, scopes, resolver, normalize, filters
 
 
 class ValidatorAdaptor(object):
@@ -24,6 +24,16 @@ class ValidatorAdaptor(object):
             return type_(value)
         except ValueError:
             return value
+
+    @staticmethod
+    def get_ref_obj(ref):
+        fields = ref.split('/')
+        obj = definitions
+        for value in fields:
+            if value == '#':
+                continue
+            obj = obj[value]
+        return obj
 
     def type_convert(self, obj):
         if obj is None or not obj:
@@ -53,7 +63,11 @@ class ValidatorAdaptor(object):
             return [func([i]) for i in v]
 
         for k, values in obj.lists():
-            prop = self.validator.schema['properties'].get(k, {})
+            obj = self.validator.schema
+            if '$ref' in obj:
+                obj = self.get_ref_obj(obj['$ref'])
+
+            prop = obj['properties'].get(k, {})
             type_ = prop.get('type')
             fun = convert_funs.get(type_, lambda v: v[0])
             if type_ == 'array':

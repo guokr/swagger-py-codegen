@@ -26,6 +26,12 @@ class ValidatorAdaptor(object):
             return value
 
     @staticmethod
+    def convert_to_string_if_bytes(value):
+        if isinstance(value, bytes):
+            return bytes.decode(value)
+        return value
+
+    @staticmethod
     def get_ref_obj(ref):
         fields = ref.split('/')
         obj = definitions
@@ -55,7 +61,7 @@ class ValidatorAdaptor(object):
             'boolean': lambda v: v[0].lower() not in ['n', 'no', 'false', '', '0'],
             'null': lambda v: None,
             'number': lambda v: self.validate_number(float, v[0]),
-            'string': lambda v: v[0]
+            'string': lambda v: self.convert_to_string_if_bytes(v[0])
         }
 
         def convert_array(type_, v):

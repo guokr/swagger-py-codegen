@@ -11,7 +11,7 @@ import six
 from functools import wraps
 from jsonschema import Draft4Validator
 
-from .schemas import definitions, validators, scopes, resolver, normalize, filters
+from .schemas import validators, scopes, resolver, normalize, filters
 
 
 class ValidatorAdaptor(object):

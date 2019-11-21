@@ -25,16 +25,6 @@ class ValidatorAdaptor(object):
         except ValueError:
             return value
 
-    @staticmethod
-    def get_ref_obj(ref):
-        fields = ref.split('/')
-        obj = definitions
-        for value in fields:
-            if value == '#':
-                continue
-            obj = obj[value]
-        return obj
-
     def type_convert(self, obj):
         if obj is None or not obj:
             return None
@@ -65,7 +55,7 @@ class ValidatorAdaptor(object):
         for k, values in obj.lists():
             schema = self.validator.schema
             if '$ref' in schema:
-                schema = self.get_ref_obj(schema['$ref'])
+                _, schema = resolver.resolve(schema['$ref'])
 
             prop = schema['properties'].get(k, {})
             type_ = prop.get('type')

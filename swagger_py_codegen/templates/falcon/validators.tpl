@@ -33,6 +33,16 @@ def _path_to_endpoint(path):
     return _remove_characters(endpoint, '{}')
 
 
+def unpack(value):
+    try:
+        if hasattr(value, 'status'):
+            return int(value.status.split()[0])
+    except:
+        pass
+    raise falcon.HTTPInternalServerError(title='UnpackFailed',
+                                         description="unpack status from response failed")
+
+
 class Current(object):
 
     request = None
@@ -148,7 +158,7 @@ def response_filter(req, resp, resource):
         return resp
 
     headers = None
-    status = None
+    status = unpack(resp)
 
     if len(filter) == 1:
         if six.PY3:

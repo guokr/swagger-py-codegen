@@ -143,7 +143,7 @@ def response_filter(view):
 
         if not schemas:
             # return resp, status, headers
-            abort(500, message='`%d` is not a defined status code.' % status)
+            abort(500, message='`{}` is not a defined status code.'.format(status))
 
         resp, errors = normalize(schemas['schema'], resp, resolver=resolver)
         if schemas['headers']:

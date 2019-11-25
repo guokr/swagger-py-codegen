@@ -133,7 +133,7 @@ def response_filter(obj):
                 if not schemas:
                     # return resp, status, headers
                     raise tornado.web.HTTPError(
-                        500, message='`%d` is not a defined status code.' % status)
+                        500, message='`{}` is not a defined status code.'.format(status))
 
                 resp, errors = normalize(schemas['schema'], resp, resolver=resolver)
                 if schemas['headers']:

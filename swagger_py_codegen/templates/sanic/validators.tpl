@@ -175,7 +175,7 @@ def response_filter(view):
 
         if not schemas:
             # return resp, status, headers
-            raise ServerError('`%d` is not a defined status code.' % status, 500)
+            raise ServerError('`{}` is not a defined status code.'.format(status), 500)
 
         resp, errors = normalize(schemas['schema'], resp, resolver=resolver)
         if schemas['headers']:

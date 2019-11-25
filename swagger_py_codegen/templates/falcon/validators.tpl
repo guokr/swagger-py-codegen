@@ -173,7 +173,7 @@ def response_filter(req, resp, resource):
         # return resp, status, headers
         raise falcon.HTTPInternalServerError(
             'Not defined',
-            description='`%d` is not a defined status code.' % status)
+            description='`{}` is not a defined status code.'.format(status))
 
     _resp, errors = normalize(schemas['schema'], req.context['result'], resolver=resolver)
     if schemas['headers']:

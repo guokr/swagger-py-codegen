@@ -159,14 +159,16 @@ def response_filter(req, resp, resource):
 
     headers = None
     status = unpack(resp)
-
-    if len(filter) == 1:
-        if six.PY3:
-            status = list(filter.keys())[0]
-        else:
-            status = filter.keys()[0]
-
     schemas = filter.get(status)
+
+    if not schemas:
+        if len(filter) == 1:
+            if six.PY3:
+                status = list(filter.keys())[0]
+            else:
+                status = filter.keys()[0]
+            schemas = filter.get(status)
+
     if not schemas:
         # return resp, status, headers
         raise falcon.HTTPInternalServerError(

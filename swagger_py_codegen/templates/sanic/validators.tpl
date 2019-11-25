@@ -164,13 +164,15 @@ def response_filter(view):
         if isinstance(resp, tuple):
             resp, status, headers = unpack(resp)
 
-        if len(filter) == 1:
-            if six.PY3:
-                status = list(filter.keys())[0]
-            else:
-                status = filter.keys()[0]
-
         schemas = filter.get(status)
+        if not schemas:
+            if len(filter) == 1:
+                if six.PY3:
+                    status = list(filter.keys())[0]
+                else:
+                    status = filter.keys()[0]
+            schemas = filter.get(status)
+
         if not schemas:
             # return resp, status, headers
             raise ServerError('`%d` is not a defined status code.' % status, 500)

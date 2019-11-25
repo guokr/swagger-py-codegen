@@ -122,13 +122,14 @@ def response_filter(obj):
                 resp, status, headers = unpack(resp)
             filter = filters.get((endpoint, method), None)
             if filter:
-                if len(filter) == 1:
-                    if six.PY3:
-                        status = list(filter.keys())[0]
-                    else:
-                        status = filter.keys()[0]
-
                 schemas = filter.get(status)
+                if not schemas:
+                    if len(filter) == 1:
+                        if six.PY3:
+                            status = list(filter.keys())[0]
+                        else:
+                            status = filter.keys()[0]
+                        schemas = filter.get(status)
                 if not schemas:
                     # return resp, status, headers
                     raise tornado.web.HTTPError(

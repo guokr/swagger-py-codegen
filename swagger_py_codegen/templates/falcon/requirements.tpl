@@ -3,3 +3,4 @@ jsonschema
 ujson
 six
 uwsgi
+werkzeug

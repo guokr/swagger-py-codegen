@@ -4,6 +4,7 @@
 
 {% include '_do_not_change.tpl' %}
 import six
+from jsonschema import RefResolver
 
 base_path = '{{base_path}}'
 

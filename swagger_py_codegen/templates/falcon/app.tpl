@@ -12,7 +12,7 @@ import {{blueprint}}
 
 class NotFoundError(object):
 
-    def process_response(self, req, resp, resource):
+    def process_response(self, req, resp, resource, req_succeeded):
         if resp.status.find('404') > -1 and resp.body is None:
             description = ('The requested URL [%s] was not found on the server' % req.path)
             raise falcon.HTTPError(falcon.HTTP_404,
@@ -66,5 +66,5 @@ def register_routes(app):
 
 if __name__ == '__main__':
     app = create_app()
-    httpd = simple_server.make_server('127.0.0.1', 5000, app)
+    httpd = simple_server.make_server('0.0.0.0', 5000, app)
     httpd.serve_forever()

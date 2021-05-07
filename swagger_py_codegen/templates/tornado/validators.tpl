@@ -71,7 +71,11 @@ class ValidatorAdaptor(object):
 def request_validate(obj):
     def _request_validate(view):
         @wraps(view)
+        {% if not use_async -%}
         def wrapper(*args, **kwargs):
+        {%- else -%}
+        async def wrapper(*args, **kwargs):
+        {%- endif %}
             request = obj.request
             endpoint = obj.endpoint
             user_info = obj.current_user
@@ -88,7 +92,8 @@ def request_validate(obj):
                 if location == 'json':
                     value = getattr(request, 'body', MultiDict())
                 elif location == 'args':
-                    value = getattr(request, 'query_arguments', MultiDict())
+                    value = {key: list(map(obj.decode_argument, value)) for key, value in
+                             request.query_arguments.items()}
                     for k,v in six.iteritems(value):
                         if isinstance(v, list) and len(v) == 1:
                             value[k] = v[0]
@@ -101,7 +106,11 @@ def request_validate(obj):
                     raise tornado.web.HTTPError(422, message='Unprocessable Entity',
                                                 reason=json.dumps(reasons))
                 setattr(obj, location, result)
+            {% if not use_async -%}
             return view(*args, **kwargs)
+            {%- else -%}
+            return await view(*args, **kwargs)
+            {%- endif %}
         return wrapper
     return _request_validate
 
@@ -109,8 +118,13 @@ def request_validate(obj):
 def response_filter(obj):
     def _response_filter(view):
         @wraps(view)
+        {% if not use_async -%}
         def wrapper(*args, **kwargs):
             resp = view(*args, **kwargs)
+        {%- else -%}
+        async def wrapper(*args, **kwargs):
+            resp = await view(*args, **kwargs)
+        {%- endif %}
             request = obj.request
             endpoint = obj.endpoint
             method = request.method
@@ -145,7 +159,8 @@ def response_filter(obj):
                         reason=json.dumps(errors))
             obj.set_status(status)
             obj.set_headers(headers)
-            obj.write(json.dumps(resp))
+            if resp:
+                obj.write(json.dumps(resp))
             return
         return wrapper
     return _response_filter

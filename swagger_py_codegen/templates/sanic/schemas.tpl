@@ -4,6 +4,7 @@
 
 {% include '_do_not_change.tpl' %}
 import six
+import  jsonschema
 
 base_path = '{{base_path}}'
 
@@ -28,7 +29,7 @@ scopes = {
 }
 
 
-resolver = RefResolver.from_schema(definitions)
+resolver = jsonschema.RefResolver.from_schema(definitions)
 
 class Current(object):
 

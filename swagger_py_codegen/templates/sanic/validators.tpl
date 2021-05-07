@@ -95,6 +95,13 @@ class SanicValidatorAdaptor(object):
         for k, values in obj.items():
             prop = self.validator.schema['properties'].get(k, {})
             type_ = prop.get('type')
+            if type_ is None and '$ref' in prop:
+                ref = prop.get('$ref')
+                if not ref:
+                    continue
+                type_ = self.validator.resolver.resolve(prop.get('$ref'))[1].get('type')
+                if not type_:
+                    continue
             fun = convert_funs.get(type_, lambda v: v[0])
             if type_ == 'array':
                 item_type = prop.get('items', {}).get('type')

@@ -52,7 +52,7 @@ class RequestHandler(tornado.web.RequestHandler):
     def set_headers(self, items):
         if items is None:
             return
-        for k, v in items:
+        for k, v in items.items():
             self.set_header(k, v)
 
     def write_error(self, status_code, **kwargs):

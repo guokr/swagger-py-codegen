@@ -4,5 +4,5 @@ click<7
 jinja2
 dpath
 jsonschema==2.6.0
-PyYAML==4.2b1
+PyYAML==5.4
 swagger_spec_validator

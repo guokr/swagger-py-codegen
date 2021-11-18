@@ -40,12 +40,15 @@ class ValidatorAdaptor(object):
             obj = MultiDict(six.iteritems(obj))
         result = dict()
 
+        def convert_string_if_bytes(value):
+            return bytes.decode(value) if isinstance(value, bytes) else value
+
         convert_funs = {
             'integer': lambda v: self.validate_number(int, v[0]),
-            'boolean': lambda v: bytes.decode(v[0]).lower() not in ['n', 'no', 'false', '', '0'],
+            'boolean': lambda v: convert_string_if_bytes(v[0]).lower() not in ['n', 'no', 'false', '', '0'],
             'null': lambda v: None,
             'number': lambda v: self.validate_number(float, v[0]),
-            'string': lambda v: bytes.decode(v[0]) if isinstance(v[0], bytes) else v[0]
+            'string': lambda v: convert_string_if_bytes(v[0])
         }
 
         def convert_array(type_, v):

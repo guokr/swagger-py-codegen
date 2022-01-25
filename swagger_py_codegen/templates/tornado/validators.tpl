@@ -29,7 +29,7 @@ class ValidatorAdaptor(object):
         if obj is None or not obj:
             return None
         if six.PY3:
-            if isinstance(obj, str):
+            if isinstance(obj, str) or isinstance(obj, bytes):
                 obj = MultiDict(json.loads(obj))
         else:
             if isinstance(obj, (str, unicode, basestring)):
@@ -40,12 +40,15 @@ class ValidatorAdaptor(object):
             obj = MultiDict(six.iteritems(obj))
         result = dict()
 
+        def convert_string_if_bytes(value):
+            return bytes.decode(value) if isinstance(value, bytes) else value
+
         convert_funs = {
             'integer': lambda v: self.validate_number(int, v[0]),
-            'boolean': lambda v: v[0].lower() not in ['n', 'no', 'false', '', '0'],
+            'boolean': lambda v: convert_string_if_bytes(v[0]).lower() not in ['n', 'no', 'false', '', '0'],
             'null': lambda v: None,
             'number': lambda v: self.validate_number(float, v[0]),
-            'string': lambda v: v[0]
+            'string': lambda v: convert_string_if_bytes(v[0])
         }
 
         def convert_array(type_, v):
@@ -53,7 +56,11 @@ class ValidatorAdaptor(object):
             return [func([i]) for i in v]
 
         for k, values in obj.lists():
-            prop = self.validator.schema['properties'].get(k, {})
+            schema = self.validator.schema
+            if '$ref' in schema:
+                _, schema = resolver.resolve(schema['$ref'])
+
+            prop = schema['properties'].get(k, {})
             type_ = prop.get('type')
             fun = convert_funs.get(type_, lambda v: v[0])
             if type_ == 'array':
@@ -116,8 +123,8 @@ def response_filter(obj):
             method = request.method
             if method == 'HEAD':
                 method = 'GET'
-            headers = None
-            status = None
+            headers = {}
+            status = 200
             if isinstance(resp, tuple):
                 resp, status, headers = unpack(resp)
             filter = filters.get((endpoint, method), None)

@@ -123,8 +123,8 @@ def response_filter(obj):
             method = request.method
             if method == 'HEAD':
                 method = 'GET'
-            headers = None
-            status = None
+            headers = {}
+            status = 200
             if isinstance(resp, tuple):
                 resp, status, headers = unpack(resp)
             filter = filters.get((endpoint, method), None)
